@@ -1,16 +1,15 @@
-version: "3.3"
-
 services:
+  
   traefik:
     container_name: traefik
-    image: "traefik:v2.2.8"
+    image: "traefik:v2"
     command:
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
       - --providers.docker
       - --log.level=DEBUG
       - --certificatesresolvers.leresolver.acme.httpchallenge=true
-      - --certificatesresolvers.leresolver.acme.email=your-email #Set your email address here, is for the generation of SSL certificates with Let's Encrypt. 
+      - --certificatesresolvers.leresolver.acme.email=brian@pixeloven.com #Set your email address here, is for the generation of SSL certificates with Let's Encrypt. 
       - --certificatesresolvers.leresolver.acme.storage=./acme.json
       - --certificatesresolvers.leresolver.acme.httpchallenge.entrypoint=web
     ports:
@@ -35,14 +34,14 @@ services:
     labels:
       # Frontend
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`localhost`)"
+      - "traefik.http.routers.frontend.rule=Host(`proxy.local.pixeloven.com`)"
       - "traefik.http.routers.frontend.entrypoints=websecure"
       - "traefik.http.services.frontend.loadbalancer.server.port=9000"
       - "traefik.http.routers.frontend.service=frontend"
       - "traefik.http.routers.frontend.tls.certresolver=leresolver"
       
       # Edge
-      - "traefik.http.routers.edge.rule=Host(`localhost`)"
+      - "traefik.http.routers.edge.rule=Host(`edge.local.pixeloven.com`)"
       - "traefik.http.routers.edge.entrypoints=websecure"
       - "traefik.http.services.edge.loadbalancer.server.port=8000"
       - "traefik.http.routers.edge.service=edge"
@@ -51,3 +50,7 @@ services:
 
 volumes:
   portainer_data:
+
+networks:
+  traefik:
+    external: true

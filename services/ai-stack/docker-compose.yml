@@ -20,7 +20,7 @@ services:
       - ./ollama:/root/.ollama
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.ollama.rule=Host(`ollama.local.example.com`)"
+      - "traefik.http.routers.ollama.rule=Host(`ollama.local.pixeloven.com`)"
       - "traefik.http.routers.ollama.entrypoints=https"
       - "traefik.http.routers.ollama.tls=true"
       - "traefik.http.routers.ollama.tls.certresolver=cloudflare"
@@ -59,7 +59,7 @@ services:
       - ./open-webui:/app/backend/data
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.open-webui.rule=Host(`chat.local.example.com`)"
+      - "traefik.http.routers.open-webui.rule=Host(`chat.local.pixeloven.com`)"
       - "traefik.http.routers.open-webui.entrypoints=https"
       - "traefik.http.routers.open-webui.tls=true"
       - "traefik.http.routers.open-webui.tls.certresolver=cloudflare"
@@ -127,7 +127,7 @@ services:
       - traefik
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.stable-diffusion.rule=Host(`stable-diffusion.local.example.com`)"
+      - "traefik.http.routers.stable-diffusion.rule=Host(`stable-diffusion.local.pixeloven.com`)"
       - "traefik.http.routers.stable-diffusion.entrypoints=https"
       - "traefik.http.routers.stable-diffusion.tls=true"
       - "traefik.http.routers.stable-diffusion.tls.certresolver=cloudflare"
@@ -200,7 +200,7 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.whisper.rule=Host(`whisper.local.example.com`)"
+      - "traefik.http.routers.whisper.rule=Host(`whisper.local.pixeloven.com`)"
       - "traefik.http.routers.whisper.entrypoints=https"
       - "traefik.http.routers.whisper.tls=true"
       - "traefik.http.routers.whisper.tls.certresolver=cloudflare"
