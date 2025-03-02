@@ -1,0 +1,3 @@
+include:
+  - management-stack/traefik/docker-compose.yml
+  - management-stack/portainer/docker-compose.yml

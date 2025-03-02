@@ -227,4 +227,3 @@ services:
             capabilities: [gpu]
 networks:
   traefik:
-    external: true

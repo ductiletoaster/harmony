@@ -14,3 +14,23 @@ Primary goal is to create easy to use set of workflows for managing services. Th
 ### References
 - Heavily influenced by [Techno Tim's AI Stack Tutorial](https://technotim.live/posts/ai-stack-tutorial/).
 - [Portainer](https://github.com/portainer/portainer-compose) docker compose example setup.
+
+
+## Requirements
+
+1. Install [Docker](http://docker.io).
+2. (optional) Install [Docker-compose](http://docs.docker.com/compose/install/).
+3. Clone this repository
+
+
+### Debug
+Permission issues when running docker commands
+```
+sudo usermod -aG docker $USER
+sudo systemctl start docker
+docker login
+```
+Conflict with existing containers try removing all containers
+```
+docker rm -v -f $(docker ps -qa)
+```
