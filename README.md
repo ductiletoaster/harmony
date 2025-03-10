@@ -10,11 +10,14 @@ Primary goal is to create easy to use set of workflows for managing services. Th
 #### Tasks
 - Create a simple Docker based deployment strategy leveraging [Portainer](https://github.com/portainer/portainer-compose)
 - Follow [Techno Tim's AI Stack Tutorial](https://technotim.live/posts/ai-stack-tutorial/)
+- [] Expand on instructions of desktop setup
+- [] Setup DNSmasq for resolving local dns
+- [] Setup custom https cert
+- [] Setup .env for traefik and unified launcher https://github.com/dbushell/docker-traefik
 
 ### References
 - Heavily influenced by [Techno Tim's AI Stack Tutorial](https://technotim.live/posts/ai-stack-tutorial/).
 - [Portainer](https://github.com/portainer/portainer-compose) docker compose example setup.
-
 
 ## Requirements
 
@@ -22,6 +25,40 @@ Primary goal is to create easy to use set of workflows for managing services. Th
 2. (optional) Install [Docker-compose](http://docs.docker.com/compose/install/).
 3. Clone this repository
 
+### System Setup
+
+Install CachyOS 
+- Load ISO onto Ventroy 
+- Setup for Gaming - https://wiki.cachyos.org/configuration/gaming/
+
+- Install 1Password Desktop - https://support.1password.com/install-linux/#arch-linux
+    - Setup SSH Agent
+
+### Setup DNS
+Create /etc/NetworkManager/conf.d/use-dnsmasq.conf
+``` 
+sudo touch /etc/NetworkManager/conf.d/use-dnsmasq.conf
+sudo nano /etc/NetworkManager/conf.d/use-dnsmasq.conf
+```
+Update with
+```
+[main]
+dns=dnsmasq
+```
+Create/etc/NetworkManager/dnsmasq.d/local.conf
+``` 
+sudo touch /etc/NetworkManager/dnsmasq.d/local.conf
+sudo nano /etc/NetworkManager/dnsmasq.d/local.conf
+```
+Update with
+```
+address=/.local.pixeloven.com/127.0.0.1
+```
+
+then run
+```
+sudo systemctl restart NetworkManager
+```
 
 ### Debug
 Permission issues when running docker commands

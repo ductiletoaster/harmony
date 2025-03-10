@@ -1,3 +1,8 @@
 include:
   - management-stack/traefik/docker-compose.yml
   - management-stack/portainer/docker-compose.yml
+  - management-stack/docker-compose.yml
+
+
+## https://github.com/hartmark/sd-rocm/blob/main/run-local.sh
+## https://gist.github.com/augustin-laurent/d29f026cdb53a4dff50a400c129d3ea7
