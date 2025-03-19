@@ -128,7 +128,47 @@ I will assume you have a working operating system and know what you do with it (
     If you have a GPU that are from 7XXX series, then you need to change the 10.3.0 value to 11.0.0.
     From there you basically should have a working environnement with ROCm, next steps is try it.
   
-6. **Testing ROCm with Tensorflow:**
+6. **Verify ROCm is installed correctly:**
+
+    To verify installation simply run the following command.
+    ```bash
+    rocminfo
+    ```
+    If installed correctly and your system supports ROCm you should see a list of system details similar to the below (appreviated):
+    ```bash
+    ROCk module is loaded
+    =====================    
+    HSA System Attributes    
+    =====================
+    Runtime Version:         1.1
+    Runtime Ext Version:     1.6
+    ...
+    ```
+    You should see a section labelled "HSA Agents". In this section may be more than one device depending on your system configuration. For example my system has the following (appreviated): 
+    ```bash
+    *******                  
+    Agent 1                  
+    *******                  
+        Name:                    AMD Ryzen 7 5700X 8-Core Processor 
+        Uuid:                    CPU-XX                             
+        Marketing Name:          AMD Ryzen 7 5700X 8-Core Processor 
+        Vendor Name:             CPU 
+    ...
+    *******                  
+    Agent 2                  
+    *******                  
+        Name:                    gfx1030                            
+        Uuid:                    GPU-89d0d9a06b673623               
+        Marketing Name:          AMD Radeon RX 6900 XT              
+        Vendor Name:             AMD         
+    ...
+    ```
+    For additional system details and steps to verify installation and compatibility run:
+    ```bash
+    clinfo
+    ```
+
+7. **Testing ROCm with Tensorflow:**
   
    Now simply install the library with pip.
 
