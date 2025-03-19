@@ -9,6 +9,8 @@ This tool is a prerequist to use GPU Acceleration on TensorFlow or PyTorch.
 In this guide I will use Paru as my AUR package helper, feel free to use any other (https://wiki.archlinux.org/title/AUR_helpers).
 I will assume you have a working operating system and know what you do with it (Otherwise Arch will be painfull for you).
 
+> Note AMD does not have an official guide for Arch based distributions. Here are the official [quick start guides](https://rocm.docs.amd.com/projects/install-on-linux/en/latest/install/quick-start.html#) for reference. 
+
 ## Prerequisites
 
 - A computer running Arch
@@ -48,8 +50,9 @@ I will assume you have a working operating system and know what you do with it (
     ```
     
     ```bash
-    export PATH="$HOME/.pyenv/bin:$PATH"
-    eval "$(pyenv init --path)"
+    export PYENV_ROOT="$HOME/.pyenv"
+    [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+    eval "$(pyenv init - bash)"
     eval "$(pyenv virtualenv-init -)"
     ```
     
@@ -65,20 +68,27 @@ I will assume you have a working operating system and know what you do with it (
     pyenv
     ```
     
-    If the commands list is printed in your terminal, then you managed to installed otherwise go to PyEnv wiki to try fix the install : (https://github.com/pyenv/pyenv/wiki)
+    If the commands list is printed in your terminal, then you managed to installed otherwise go to PyEnv wiki to try fix the install : (https://github.com/pyenv/pyenv/wiki) 
+
+    In addition it is recommended you follow this [Suggested build enviroment](https://github.com/pyenv/pyenv/wiki#suggested-build-environment) to prepare for proper installation of specific python versions. 
+
+    In my particular case I found I needed to modify one the command under Arch Linux to the following:
+    ```bash
+    sudo pacman -S --needed base-devel openssl xz tk
+    ```
     
 4. **Install Python:**
 
-    Now that we have PyEnv we can install Python, in this guide, I will use Python 3.10.13 (Lateset version supported at the date I'm writing this guide).
+    Now that we have PyEnv we can install Python, in this guide, I will use Python 3.13.2 (Lateset version supported at the date I'm writing this guide).
 
     ```bash
-    pyenv install 3.10.13
+    pyenv install 3.13.2
     ```
 
-    PyEnv have installed the 3.10.13 version, now we need to tell our system to use this version.
+    PyEnv have installed the 3.13.2 version, now we need to tell our system to use this version.
 
     ```bash
-    pyenv global 3.10.13
+    pyenv global 3.13.2
     ```
 
     To ensure we have the right version execute :
@@ -87,7 +97,7 @@ I will assume you have a working operating system and know what you do with it (
     python --version
     ```
 
-    If the command return 3.10.13 then you have the version you just installed as the version your system will use.
+    If the command return 3.13.2 then you have the version you just installed as the version your system will use.
 
 4. **Install ROCm:**
 
@@ -101,14 +111,14 @@ I will assume you have a working operating system and know what you do with it (
 
 5. **Configuring stuff:**
 
-    You will need to had your session to user groups.
+    You will need to add your session to user groups.
 
     ```bash
     sudo gpasswd -a username render
     sudo gpasswd -a username video
     ```
 
-    Then you will have to edit .bashrc again, add this :
+    Then you will have to edit .bashrc / .zshrc again, add this :
 
     ```bash
     export ROCM_PATH=/opt/rocm
@@ -142,7 +152,6 @@ I will assume you have a working operating system and know what you do with it (
     ```bash
     python test_tensorflow.py
     ```
-    
     
     If it's running 5 Epochs and printing the time your GPU made to pass the test, congratulations ! You now have a working ROCm environnement !
     For numbers here are my result with a RX 6900XT :

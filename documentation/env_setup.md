@@ -39,4 +39,4 @@ Below are my personal preferences on setting up my developer enviroment. Most of
 
 
 ## Follow Guides
-- Installing Vscode, docker, etc
+- Installing Vscode, docker, 1password, etc
