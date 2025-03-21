@@ -1,2 +1,6 @@
 .git
 .env
+
+# Persistant Data Stores
+services/ai-stack/whisper
+services/ai-stack/ollama
