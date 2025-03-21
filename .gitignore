@@ -1,5 +1,6 @@
 .git
 .env
+.DS_Store
 
 # Persistant Data Stores
 services/ai-stack/whisper
