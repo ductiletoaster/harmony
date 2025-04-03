@@ -1,4 +1,4 @@
-# Workflows
+# Harmony
 
 This project is an attempt to bring order to my diverse software interests. In this project you will find a collection of docker [services](./services/README.md) ranging in interests from AI to Media serving and more. My focus is in creating a simple to use and familiar (to me) set of workflows for developing applications and leveraging state of the art technology to do so. 
 
