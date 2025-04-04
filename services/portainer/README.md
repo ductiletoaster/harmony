@@ -1,4 +1,4 @@
-# Portainer compose setup
+# Portainer Setup
 
 A simple setup to deploy Portainer using `docker-compose` or `docker stack deploy` (Swarm).
 
@@ -8,11 +8,21 @@ A simple setup to deploy Portainer using `docker-compose` or `docker stack deplo
 2. (optional) Install [Docker-compose](http://docs.docker.com/compose/install/).
 3. Clone this repository
 
+## TrueNAS Installation (optional)
+Depending on your setup this step may not be applicable. 
+
+1. 
+
+### Setup for Traefik
+
 ## Usage
 
 ### Compose
 
-See `nginx-proxy/` or `traefik/` for Compose deployments.
+Deploy using `docker-compose`:
+```
+docker-compose up -d
+```
 
 ### Swarm
 
