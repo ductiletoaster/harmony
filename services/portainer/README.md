@@ -8,12 +8,20 @@ A simple setup to deploy Portainer using `docker-compose` or `docker stack deplo
 2. (optional) Install [Docker-compose](http://docs.docker.com/compose/install/).
 3. Clone this repository
 
-## TrueNAS Installation (optional)
+## Installation on TrueNAS (optional)
 Depending on your setup this step may not be applicable. 
 
-1. 
+1. Login to the TrueNAS console.
+2. Navigate to Apps on the primary sidebar menu.
+3. Click the "Discover Apps" button in the top right corner.
+4. Search "Portainer" click and install.
 
 ### Setup for Traefik
+More often than note running Portainer on TrueNAS typically means we are managing most of the rest of our applications through Portainer rathern than through the native application manager. In some cases this may even include a container for Traefik. 
+
+TBD
+
+> **_NOTE:_** Though it is possible to run and manage Traefik from TrueNAS it is generally recommended to deploy this to a seperate machine. In my particular case I am only using it to support internal resolution of internal domains for my local enviroment. In other words nothing is being exposed to external traffic.
 
 ## Usage
 
