@@ -1,5 +1,7 @@
 services:
   
+  # https://doc.traefik.io/traefik/v1.4/user-guide/examples/#lets-encrypt-support
+  # Setup .env for portable configuration 
   traefik:
     container_name: traefik
     image: "traefik:v3.3"
