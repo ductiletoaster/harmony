@@ -1,5 +1,5 @@
 include:
-  - docker-compose.yaml
+  - docker-compose.yml
 services:
   test:
     env_file:
