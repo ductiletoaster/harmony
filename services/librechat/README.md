@@ -1,6 +1,7 @@
 # LibreChat Setup
 
-A simple setup to deploy Gitea using `docker-compose`
+A simple setup to deploy LibreChat using `docker-compose`.
+> **_NOTE:_** The `docker-compose` and `.env.example` were copied from [LibreChat](https://github.com/danny-avila/LibreChat) repository. While `stack.env` was copied from the `.env.example` file.
 
 ## Requirements
 
