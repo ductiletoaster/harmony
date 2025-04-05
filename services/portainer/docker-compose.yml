@@ -16,7 +16,7 @@ services:
       - "traefik.http.routers.frontend.service=frontend"
       - "traefik.http.routers.frontend.tls.certresolver=leresolver"
       
-      # Edge
+      # Edge Agent Support
       - "traefik.http.routers.edge.rule=Host(`edge.local.pixeloven.com`)"
       - "traefik.http.routers.edge.entrypoints=websecure"
       - "traefik.http.services.edge.loadbalancer.server.port=8000"
