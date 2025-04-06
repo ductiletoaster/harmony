@@ -37,6 +37,14 @@ Below are my personal preferences on setting up my developer enviroment. Most of
     ```
     Customize your installation however you see fit. 
 
+4. **Set ZSH as Default Shell:**
+   Setting ZSH as defulat is as easy as running the following command however you may find it requires a system reboot to kick in.
 
-## Follow Guides
+   ```bash
+   chsh -s /usr/bin/bash
+   ```
+
+> **_NOTE:_** Reference CachyOS [Post Install Guide](https://wiki.cachyos.org/configuration/post_install_setup/) for more details
+
+## Followup Guides
 - Installing Vscode, docker, 1password, etc
