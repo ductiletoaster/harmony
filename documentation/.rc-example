@@ -8,6 +8,6 @@ export PYENV_ROOT="$HOME/.pyenv"
 eval "$(pyenv init - bash)"
 eval "$(pyenv virtualenv-init -)"
 
-# AMD ROCm
-export ROCM_PATH=/opt/rocm
-export HSA_OVERRIDE_GFX_VERSION=10.3.0
+# AMD ROCm (Set for AMD GPU w/ ROCm Support Only)
+# export ROCM_PATH=/opt/rocm
+# export HSA_OVERRIDE_GFX_VERSION=10.3.0
