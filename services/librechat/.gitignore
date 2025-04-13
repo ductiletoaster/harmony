@@ -1,0 +1,10 @@
+# Logs
+data-node
+meili_data*
+logs
+*.log
+
+# User uploads
+uploads/
+
+/images

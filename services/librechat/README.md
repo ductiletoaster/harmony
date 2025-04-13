@@ -1,7 +1,7 @@
 # LibreChat Setup
 
 A simple setup to deploy LibreChat using `docker-compose`.
-> **_NOTE:_** The `docker-compose` and `.env.example` were copied from [LibreChat](https://github.com/danny-avila/LibreChat) repository. While `stack.env` was copied from the `.env.example` file.
+> **_NOTE:_** The `docker-compose.yml`, `docker-compose.override.yml`, `librechat.yml` and `.env.example` were copied from [LibreChat](https://github.com/danny-avila/LibreChat) repository. While `stack.env` is a copy of the `.env.example` file.
 
 ## Requirements
 

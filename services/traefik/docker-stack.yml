@@ -1,6 +1,0 @@
-include:
-  - docker-compose.yaml
-services:
-  test:
-    env_file:
-      - stack.env
