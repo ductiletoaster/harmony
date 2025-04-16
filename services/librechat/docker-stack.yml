@@ -4,7 +4,7 @@ include:
 services:
   api:
     ports:
-      - "${PORT:-3080}:${PORT:-3080}"
+      - "3080:3080"
     volumes:
       - type: bind
         source: ./stack.env
