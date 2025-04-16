@@ -1,5 +1,8 @@
 services:
   api:
+    extends:
+      file: docker-compose.yml
+      service: api
     ports: !override
       - "3080:3080"
     volumes:
@@ -10,5 +13,8 @@ services:
       - ./uploads:/app/uploads
       - ./logs:/app/api/logs
   rag_api:
+    extends:
+      file: docker-compose.yml
+      service: rag_api
     env_file:
       - stack.env
