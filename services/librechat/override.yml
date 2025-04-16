@@ -1,6 +1,6 @@
 services:
   api:
-    ports:
+    ports: !override
       - "3080:3080"
     volumes:
       - type: bind
