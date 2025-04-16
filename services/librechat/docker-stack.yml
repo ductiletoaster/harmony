@@ -3,7 +3,7 @@ services:
     extends:
       file: docker-compose.yml
       service: api
-    ports: !override
+    ports: !reset []
       - "3080:3080"
     volumes:
       - type: bind
