@@ -1,0 +1,14 @@
+services:
+  api:
+    ports:
+      - "3080:3080"
+    volumes:
+      - type: bind
+        source: ./stack.env
+        target: /app/.env
+      - ./images:/app/client/public/images
+      - ./uploads:/app/uploads
+      - ./logs:/app/api/logs
+  rag_api:
+    env_file:
+      - stack.env
