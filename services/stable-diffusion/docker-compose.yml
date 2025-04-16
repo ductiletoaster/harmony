@@ -24,7 +24,8 @@ services:
       - /etc/timezone:/etc/timezone:ro
       - ./stable-diffusion-webui-docker/data:/data
       - ./stable-diffusion-webui-docker/output:/output
-
+    ports:
+      - "${WEBUI_PORT:-7860}:7860"
     stop_signal: SIGKILL
     tty: true
     deploy:
@@ -35,8 +36,8 @@ services:
                 device_ids: ['0']
                 capabilities: [compute, utility]
     restart: unless-stopped
-    networks:
-      - traefik
+    # networks:
+    #   - traefik
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.stable-diffusion.rule=Host(`stable-diffusion.local.pixeloven.com`)"
