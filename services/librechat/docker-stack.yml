@@ -1,4 +1,0 @@
-include:
-  - path:
-    - docker-compose.yml 
-    - override.yml 
