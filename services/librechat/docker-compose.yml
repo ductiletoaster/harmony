@@ -9,6 +9,7 @@ services:
       - mongodb
       - rag_api
     restart: always
+    user: "${UID:-1000}:${GID:-1000}"
     extra_hosts:
     - "host.docker.internal:host-gateway"
     env_file:
@@ -46,6 +47,7 @@ services:
     #   - 27018:27017
     image: mongo
     restart: always
+    user: "${UID:-1000}:${GID:-1000}"
     volumes:
       - ./data-node:/data/db
     command: mongod --noauth
@@ -53,6 +55,7 @@ services:
     container_name: chat-meilisearch
     image: getmeili/meilisearch:v1.12.3
     restart: always
+    user: "${UID:-1000}:${GID:-1000}"
     # ports: # Uncomment this to access meilisearch from outside docker
     #   - 7700:7700 # if exposing these ports, make sure your master key is not the default value
     env_file:
