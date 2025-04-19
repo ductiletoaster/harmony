@@ -1,0 +1,10 @@
+services:
+  api:
+    env_file:
+      - stack.env
+  meilisearch:
+    env_file:
+      - stack.env
+  rag_api:
+    env_file:
+      - stack.env

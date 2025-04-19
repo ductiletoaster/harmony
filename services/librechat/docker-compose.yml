@@ -1,6 +1,9 @@
-# Originally copied from https://github.com/danny-avila/LibreChat/blob/main/deploy-compose.yml
 services:
   api:
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile.multi
+    #   target: api-build
     image: ghcr.io/danny-avila/librechat-dev-api:latest
     container_name: LibreChat-API
     ports:
@@ -9,12 +12,10 @@ services:
       - mongodb
       - rag_api
     restart: always
-    user: "${UID:-1000}:${GID:-1000}"
     extra_hosts:
     - "host.docker.internal:host-gateway"
     env_file:
-      - stack.env
-      # - .env
+      - .env
     environment:
       - HOST=0.0.0.0
       - NODE_ENV=production
@@ -47,7 +48,6 @@ services:
     #   - 27018:27017
     image: mongo
     restart: always
-    user: "${UID:-1000}:${GID:-1000}"
     volumes:
       - ./data-node:/data/db
     command: mongod --noauth
@@ -55,12 +55,10 @@ services:
     container_name: chat-meilisearch
     image: getmeili/meilisearch:v1.12.3
     restart: always
-    user: "${UID:-1000}:${GID:-1000}"
     # ports: # Uncomment this to access meilisearch from outside docker
     #   - 7700:7700 # if exposing these ports, make sure your master key is not the default value
     env_file:
-      - stack.env
-      # - .env
+      - .env
     environment:
       - MEILI_HOST=http://meilisearch:7700
       - MEILI_NO_ANALYTICS=true
@@ -84,8 +82,7 @@ services:
     depends_on:
       - vectordb
     env_file:
-      - stack.env
-      # - .env
+      - .env
 
 volumes:
   pgdata2:
