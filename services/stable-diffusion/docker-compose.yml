@@ -32,7 +32,7 @@ services:
       resources:
         reservations:
           devices:
-              - driver: nvidia
+              - driver: ${DEVICE_DRIVER:-nvidia}
                 device_ids: ['0']
                 capabilities: [compute, utility]
     restart: unless-stopped
