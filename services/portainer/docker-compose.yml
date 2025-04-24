@@ -18,7 +18,7 @@ services:
     labels:
           
       # Agent Support
-      - "traefik.http.routers.portainer-agent.rule=Host(`agent001.local.pixeloven.com`)"
+      - "traefik.http.routers.portainer-agent.rule=Host(`agent001.local.briangebel.com`)"
       - "traefik.http.routers.portainer-agent.entrypoints=websecure"
       - "traefik.http.services.portainer-agent.loadbalancer.server.port=9001"
       - "traefik.http.routers.portainer-agent.service=portainer-agent"
@@ -35,14 +35,14 @@ services:
     labels:
       # Frontend
       - "traefik.enable=true"
-      - "traefik.http.routers.portainer.rule=Host(`portainer001.local.pixeloven.com`)"
+      - "traefik.http.routers.portainer.rule=Host(`portainer001.local.briangebel.com`)"
       - "traefik.http.routers.portainer.entrypoints=websecure"
       - "traefik.http.services.portainer.loadbalancer.server.port=9000"
       - "traefik.http.routers.portainer.service=portainer"
       - "traefik.http.routers.portainer.tls.certresolver=leresolver"
       
       # Edge Agent Support
-      - "traefik.http.routers.portainer-edge.rule=Host(`portainer-edge001.local.pixeloven.com`)"
+      - "traefik.http.routers.portainer-edge.rule=Host(`portainer-edge001.local.briangebel.com`)"
       - "traefik.http.routers.portainer-edge.entrypoints=websecure"
       - "traefik.http.services.portainer-edge.loadbalancer.server.port=8000"
       - "traefik.http.routers.portainer-edge.service=portainer-edge"

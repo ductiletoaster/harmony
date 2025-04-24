@@ -52,7 +52,7 @@ sudo nano /etc/NetworkManager/dnsmasq.d/local.conf
 ```
 Update with
 ```
-address=/.local.pixeloven.com/127.0.0.1
+address=/.local.briangebel.com/127.0.0.1
 ```
 
 then run

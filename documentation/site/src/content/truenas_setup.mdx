@@ -45,7 +45,7 @@ More often than note running Portainer on TrueNAS typically means we are managin
 To register a proxy for the Frontend UI:
 ```
 traefik.enable=true
-traefik.http.routers.portainer.rule=Host(`portainer001.local.pixeloven.com`)
+traefik.http.routers.portainer.rule=Host(`portainer001.local.briangebel.com`)
 traefik.http.routers.portainer.entrypoints=websecure
 traefik.http.services.portainer.loadbalancer.server.port=9000
 traefik.http.routers.portainer.service=portainer
@@ -54,7 +54,7 @@ traefik.http.routers.portainer.tls.certresolver=leresolver
 
 To register a proxy for Edge Agent support:
 ```
-traefik.http.routers.portainer-edge.rule=Host(`portainer-edge001.local.pixeloven.com`)
+traefik.http.routers.portainer-edge.rule=Host(`portainer-edge001.local.briangebel.com`)
 traefik.http.routers.portainer-edge.entrypoints=websecure
 traefik.http.services.portainer-edge.loadbalancer.server.port=8000
 traefik.http.routers.portainer-edge.service=portainer-edge

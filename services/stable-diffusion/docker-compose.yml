@@ -40,7 +40,7 @@ services:
     #   - traefik
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.stable-diffusion.rule=Host(`stable-diffusion.local.pixeloven.com`)"
+      - "traefik.http.routers.stable-diffusion.rule=Host(`stable-diffusion.local.briangebel.com`)"
       - "traefik.http.routers.stable-diffusion.entrypoints=https"
       - "traefik.http.routers.stable-diffusion.tls=true"
       - "traefik.http.routers.stable-diffusion.tls.certresolver=cloudflare"
