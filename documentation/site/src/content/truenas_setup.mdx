@@ -45,7 +45,7 @@ More often than note running Portainer on TrueNAS typically means we are managin
 To register a proxy for the Frontend UI:
 ```
 traefik.enable=true
-traefik.http.routers.portainer.rule=Host(`portainer001.local.briangebel.com`)
+traefik.http.routers.portainer.rule=Host(`portainer.local.briangebel.com`)
 traefik.http.routers.portainer.entrypoints=websecure
 traefik.http.services.portainer.loadbalancer.server.port=9000
 traefik.http.routers.portainer.service=portainer
