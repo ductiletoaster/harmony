@@ -10,3 +10,4 @@ ff02::2    ip6-allrouters
 127.0.0.1   local.briangebel.com 
 127.0.0.1   traefik.local.briangebel.com whoami.local.briangebel.com
 127.0.0.1   portainer.local.briangebel.com portainer-edge.local.briangebel.com portainer-agent.local.briangebel.com
+127.0.0.1   librechat.local.briangebel.com

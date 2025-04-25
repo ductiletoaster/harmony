@@ -18,3 +18,11 @@ See `nginx-proxy/` or `traefik/` for Compose deployments.
 ## References
 - [Local Installation of LibreChat with Docker](https://www.librechat.ai/docs/local/docker)
 - [Using LibreChat with LiteLLM Proxy](https://www.librechat.ai/blog/2023-11-30_litellm)
+
+
+---
+### New Swarm set
+
+```
+docker stack deploy -c docker-compose.yml librechat
+```
