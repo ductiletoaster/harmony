@@ -1,0 +1,57 @@
+services:
+# stable diffusion
+
+  # Expand to support the other ui - update traefic for comfyui
+  # Setup other swarm setups the same - create none swarm support as well?
+
+
+  stable-diffusion-download:
+    image: comfy-download
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - CLI_ARGS=
+    networks:
+      - diffusion_network
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - ./stable-diffusion-webui-docker/data:/data
+
+  stable-diffusion-comfyui:
+    image: comfy-ui
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - CLI_ARGS=
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - ./stable-diffusion-webui-docker/data:/data
+      - ./stable-diffusion-webui-docker/output:/output
+    stop_signal: SIGKILL
+    tty: true
+    networks:
+      - proxy
+      - diffusion_network
+    deploy:
+      mode: global
+      placement:
+        constraints: [node.platform.os == linux]
+      labels:
+            
+        # Agent Support
+        - "traefik.enable=true"
+        - "traefik.http.routers.stable-diffusion.rule=Host(`stable-diffusion.local.briangebel.com`)"
+        - "traefik.http.routers.stable-diffusion.entrypoints=websecure"
+        - "traefik.http.services.stable-diffusion.loadbalancer.server.port=7860"
+        - "traefik.http.routers.stable-diffusion.service=stable-diffusion"
+        - "traefik.http.routers.stable-diffusion.tls.certresolver=leresolver"
+
+networks:
+  proxy:
+    external: true
+  diffusion_network:
+    name: diffusion_network
+    driver: overlay
+    attachable: true

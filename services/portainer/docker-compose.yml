@@ -24,6 +24,7 @@ services:
       labels:
             
         # Agent Support
+        - "traefik.enable=true"
         - "traefik.http.routers.portainer-agent.rule=Host(`portainer-agent.local.briangebel.com`)"
         - "traefik.http.routers.portainer-agent.entrypoints=websecure"
         - "traefik.http.services.portainer-agent.loadbalancer.server.port=9001"

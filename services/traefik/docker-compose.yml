@@ -37,7 +37,8 @@ services:
       - --entryPoints.web.http.redirections.entrypoint.scheme=https
       - --entrypoints.websecure.address=:443
       - --entrypoints.websecure.asDefault=true
-      - --entrypoints.websecure.http.tls.certresolver=myresolver
+      - --entrypoints.websecure.http.tls.certresolver=leresolver
+      # - --entrypoints.websecure.http.tls.certresolver=cloudflare
       - --certificatesresolvers.myresolver.acme.email=mail@example.com
       - --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
       - --certificatesresolvers.myresolver.acme.tlschallenge=true
