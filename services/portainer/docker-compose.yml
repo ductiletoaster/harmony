@@ -2,7 +2,8 @@ services:
   
   agent:
     image: portainer/agent
-    container_name: portainer-agent
+    # image: portainer/agent:lts
+    # hostname: '{{.Node.Hostname}}'
     environment:
       # REQUIRED: Should be equal to the service name prefixed by "tasks." when
       # deployed inside an overlay network
@@ -10,43 +11,65 @@ services:
       # AGENT_PORT: 9001
       # LOG_LEVEL: debug
     # Uncomment to expose agent to another host
-    ports:
-      - "9001:9001"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/lib/docker/volumes:/var/lib/docker/volumes
-    labels:
-          
-      # Agent Support
-      - "traefik.http.routers.portainer-agent.rule=Host(`agent001.local.briangebel.com`)"
-      - "traefik.http.routers.portainer-agent.entrypoints=websecure"
-      - "traefik.http.services.portainer-agent.loadbalancer.server.port=9001"
-      - "traefik.http.routers.portainer-agent.service=portainer-agent"
-      - "traefik.http.routers.portainer-agent.tls.certresolver=leresolver"
+    networks:
+      - proxy
+      - agent_network
+    deploy:
+      mode: global
+      placement:
+        constraints: [node.platform.os == linux]
+      labels:
+            
+        # Agent Support
+        - "traefik.http.routers.portainer-agent.rule=Host(`portainer-agent.local.briangebel.com`)"
+        - "traefik.http.routers.portainer-agent.entrypoints=websecure"
+        - "traefik.http.services.portainer-agent.loadbalancer.server.port=9001"
+        - "traefik.http.routers.portainer-agent.service=portainer-agent"
+        - "traefik.http.routers.portainer-agent.tls.certresolver=leresolver"
 
   portainer:
     image: portainer/portainer
-    container_name: portainer
-    command: -H unix:///var/run/docker.sock
-    restart: always
+    # image: portainer/portainer-ce:lts
+    # hostname: '{{.Node.Hostname}}'
+    # command: -H unix:///var/run/docker.sock
+    command: -H tcp://tasks.agent:9001 --tlsskipverify
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
-    labels:
-      # Frontend
-      - "traefik.enable=true"
-      - "traefik.http.routers.portainer.rule=Host(`portainer001.local.briangebel.com`)"
-      - "traefik.http.routers.portainer.entrypoints=websecure"
-      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
-      - "traefik.http.routers.portainer.service=portainer"
-      - "traefik.http.routers.portainer.tls.certresolver=leresolver"
-      
-      # Edge Agent Support
-      - "traefik.http.routers.portainer-edge.rule=Host(`portainer-edge001.local.briangebel.com`)"
-      - "traefik.http.routers.portainer-edge.entrypoints=websecure"
-      - "traefik.http.services.portainer-edge.loadbalancer.server.port=8000"
-      - "traefik.http.routers.portainer-edge.service=portainer-edge"
-      - "traefik.http.routers.portainer-edge.tls.certresolver=leresolver"
+    networks:
+      - proxy
+      - agent_network
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      labels:
+
+        # Frontend
+        - "traefik.enable=true"
+        - "traefik.http.routers.portainer.rule=Host(`portainer.local.briangebel.com`)"
+        - "traefik.http.routers.portainer.entrypoints=websecure"
+        - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+        - "traefik.http.routers.portainer.service=portainer"
+        - "traefik.http.routers.portainer.tls.certresolver=leresolver"
+        
+        # Edge Agent Support
+        - "traefik.http.routers.portainer-edge.rule=Host(`portainer-edge.local.briangebel.com`)"
+        - "traefik.http.routers.portainer-edge.entrypoints=websecure"
+        - "traefik.http.services.portainer-edge.loadbalancer.server.port=8000"
+        - "traefik.http.routers.portainer-edge.service=portainer-edge"
+        - "traefik.http.routers.portainer-edge.tls.certresolver=leresolver"
+
+networks:
+  proxy:
+    external: true
+  agent_network:
+    name: agent_network
+    driver: overlay
+    attachable: true
 
 volumes:
   portainer_data:

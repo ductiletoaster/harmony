@@ -1,19 +1,27 @@
-# Usage
+# docker-swarm-traefik
 
-This setup comes up with the [Traefik](https://github.com/containous/traefik) v2.2.8 reverse proxy to access the Portainer instance via a virtual host, has support for SSL certificates using Let's Encrypt and automatic redirection from http to https.
+Simple `docker-compose.yml` template to run Traefik and a whoami service with Docker Swarm.
 
-The default configuration will make Portainer frontend available via the `portainer.yourdomain.com` domain. If you wish to change this, update the `traefik.http.routers.frontend.rule=Host(`portainer.yourdomain.com`)` label for the Portainer service in the `docker-compose.yml` file.
+## Features:
 
-If you're going to use Edge agents. When you set up the endpoint from Portainer Configuration, you need to change the Portainer Server URL setting to match with the label specified for Edge. In this sample, the URL specified for the Edge service is `traefik.http.routers.frontend.rule=Host(`edge.yourdomain.com`)`.
+- Traefik will be deployed to all manager nodes (to have access to Swarm docker.sock)
+- Traefik is listening on ports 80 (http) and 443 (https) on the node itself
+- All http requests will be redirected to secure https requests
+- Docker services with label `traefik.enable=true` will automatically be discovered by Traefik
+- Letsencrypt will automatically generate TLS/SSL certificates for all domains in `Host()`
+- Traefik log (`level=INFO`) and access log are enabled to container stdout/stderr
+- Traefik dashboard is enabled at `https://traefik.example.com/dashboard/` with user/pass test/test
+- Traefik `whoami` will be deployed to all Swarm nodes, available at `https://whoami.example.com`
 
-![Edge](/traefik/edge.png)
+## Deployment:
 
-Deploy this stack on any Docker node:
+- Adapt all domain names in `Host()`
+- Adapt `acme.email`
+- Adapt dashboard username/password
+- For production: write logs files to mounted folder on host
+- Run `docker stack deploy -c docker-compose.yml proxy`
 
-```
-docker-compose up -d
-```
+## Challenges:
 
-And then access Portainer by hitting [http://portainer.yourdomain.com](http://portainer.yourdomain.com) with a web browser.
-
-**NOTE**: Your machine must be able to resolve `portainer.yourdomain.com` (or your own domain if you updated it).
+- Only a single Traefik instance should be run for `httpChallenge` or `tlsChallenge` to work, as Traefik CE (community edition) is not cluster-enabled. If you need clustered LetsEncrypt TLS, use `dnsChallenge` or a different method to generate the certs.
+- Make sure to persist the LetsEncrypt TLS certs, as LetsEncrypt has strict limits. Note that the content of volumes is not shared across nodes.

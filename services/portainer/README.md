@@ -24,3 +24,12 @@ docker-compose up -d agent
 
 ## References
 - [Deploying Portainer behind Traefik Proxy](https://docs.portainer.io/advanced/reverse-proxy/traefik)
+
+
+---
+### New Swarm set
+https://docs.portainer.io/start/install-ce/server/swarm/wsl
+
+```
+docker stack deploy -c docker-compose.yml portainer
+```
