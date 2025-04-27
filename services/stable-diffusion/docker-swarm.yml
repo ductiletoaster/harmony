@@ -19,7 +19,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
-      - ./stable-diffusion-webui-docker/data:/data
+      - ./data:/data
 
   comfyui:
     image: comfy-ui
@@ -31,8 +31,8 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
-      - ./stable-diffusion-webui-docker/data:/data
-      - ./stable-diffusion-webui-docker/output:/output
+      - ./data:/data
+      - ./output:/output
     stop_signal: SIGKILL
     networks:
       - proxy
@@ -45,6 +45,7 @@ services:
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.stable-diffusion.rule=Host(`stable-diffusion.local.briangebel.com`)"
+        # - "traefik.http.routers.stable-diffusion.rule=Path(`/service/stable-diffusion`)"
         - "traefik.http.routers.stable-diffusion.entrypoints=websecure"
         - "traefik.http.services.stable-diffusion.loadbalancer.server.port=7860"
         - "traefik.http.routers.stable-diffusion.service=stable-diffusion"
