@@ -27,7 +27,7 @@ docker compose up -d
 
 Deploy using `docker stack deploy` (Swarm):
 ```
-docker stack deploy -c docker-swarm.yml diffusion
+docker stack deploy -c diffusion
 ```
 ## References
 - [GPU Support For Docker Swarm](https://gist.github.com/coltonbh/374c415517dbeb4a6aa92f462b9eb287) - We should save this some where
