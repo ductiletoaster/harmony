@@ -1,18 +1,16 @@
 services:
-# stable diffusion
-
   # Expand to support the other ui - update traefic for comfyui
   # Setup other swarm setups the same - create none swarm support as well?
 
   download:
     image: comfy-download
-    user: ${PUID:-1000}:${PGID:-1000}
+    # user: ${PUID:-1000}:${PGID:-1000}
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
       - CLI_ARGS=
     networks:
-      - diffusion_network
+      - stable_diffusion_network
     deploy:
       mode: replicated
       replicas: 1
@@ -25,7 +23,7 @@ services:
 
   comfyui:
     image: comfy-ui
-    user: ${PUID:-1000}:${PGID:-1000}
+    # user: ${PUID:-1000}:${PGID:-1000}
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
@@ -36,29 +34,26 @@ services:
       - ./stable-diffusion-webui-docker/data:/data
       - ./stable-diffusion-webui-docker/output:/output
     stop_signal: SIGKILL
-    tty: true
     networks:
       - proxy
-      - diffusion_network
+      - stable_diffusion_network
     deploy:
       mode: replicated
       replicas: 1
       placement:
         constraints: [node.role == manager]
       labels:
-            
-        # Agent Support
         - "traefik.enable=true"
-        - "traefik.http.routers.diffusion.rule=Host(`diffusion.local.briangebel.com`)"
-        - "traefik.http.routers.diffusion.entrypoints=websecure"
-        - "traefik.http.services.diffusion.loadbalancer.server.port=7860"
-        - "traefik.http.routers.diffusion.service=stable-diffusion"
-        - "traefik.http.routers.diffusion.tls.certresolver=leresolver"
+        - "traefik.http.routers.stable-diffusion.rule=Host(`stable-diffusion.local.briangebel.com`)"
+        - "traefik.http.routers.stable-diffusion.entrypoints=websecure"
+        - "traefik.http.services.stable-diffusion.loadbalancer.server.port=7860"
+        - "traefik.http.routers.stable-diffusion.service=stable-diffusion"
+        - "traefik.http.routers.stable-diffusion.tls.certresolver=leresolver"
 
 networks:
   proxy:
     external: true
-  diffusion_network:
-    name: diffusion_network
+  stable_diffusion_network:
+    name: stable_diffusion_network
     driver: overlay
     attachable: true

@@ -19,7 +19,7 @@ Simple `docker-compose.yml` template to run Traefik and a whoami service with Do
 - Adapt `acme.email`
 - Adapt dashboard username/password
 - For production: write logs files to mounted folder on host
-- Run `docker stack deploy -c docker-compose.yml proxy`
+- Run `docker stack deploy -c docker-swarm.yml proxy`
 
 ## Challenges:
 

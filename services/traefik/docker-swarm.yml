@@ -22,26 +22,9 @@ services:
       - proxy
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - letsencrypt:/letsencrypt
+      - ./traefik.yml:/traefik.yml:ro # Traefik config file
+      - traefik-certs:/certs # Docker volume to store the acme file for the Certificates
       #- /var/log:/var/log
-    command:
-      - --api.dashboard=true
-      - --log.level=INFO
-      #- --log.filepath=/var/log/traefik.log
-      - --accesslog=true
-      #- --accesslog.filepath=/var/log/traefik-access.log
-      - --providers.swarm.exposedByDefault=false
-      - --providers.swarm.network=proxy
-      - --entrypoints.web.address=:80
-      - --entrypoints.web.http.redirections.entrypoint.to=websecure
-      - --entryPoints.web.http.redirections.entrypoint.scheme=https
-      - --entrypoints.websecure.address=:443
-      - --entrypoints.websecure.asDefault=true
-      - --entrypoints.websecure.http.tls.certresolver=leresolver
-      # - --entrypoints.websecure.http.tls.certresolver=cloudflare
-      - --certificatesresolvers.myresolver.acme.email=mail@example.com
-      - --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
-      - --certificatesresolvers.myresolver.acme.tlschallenge=true
     deploy:
       mode: global
       placement:
@@ -73,5 +56,5 @@ networks:
     attachable: true
 
 volumes:
-  letsencrypt:
-    name: letsencrypt
+  traefik-certs:
+    name: traefik-certs
