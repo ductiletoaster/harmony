@@ -28,8 +28,7 @@ services:
     deploy:
       mode: global
       placement:
-        constraints:
-          - node.role==manager
+        constraints: [node.role == manager]
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.mydashboard.rule=Host(`traefik.local.briangebel.com`)"
