@@ -4,8 +4,6 @@ A simple setup to deploy Portainer and Portainer Agent using `docker stack deplo
 
 > Portainer can be directly deployed as a service in your Docker Swarm cluster. Note that this method will automatically deploy a single instance of the Portainer Server, and deploy the Portainer Agent as a global service on every node in your cluster.
 
-
-
 ## Requirements
 
 1. Install [Docker](http://docker.io).
