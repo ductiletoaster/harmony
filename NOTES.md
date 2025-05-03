@@ -1,5 +1,6 @@
 # Homelab Setup
 
+- All apps should run in standalone and swarm
 
 ## System Setup
 ### TrueNAS
@@ -23,7 +24,7 @@ Setup for Workstaion-01 and Workstation-02
 - Install Windows 10 in VM and Office 
 - Try Dockage vs Portainer
 
-## Apaplications
+## Applications
 My current plan is to deploy as much as possible through docker swarm. Where necessary utilize TrueNAS apps and portainer. 
 
 For `nas.local.briangebel.com`

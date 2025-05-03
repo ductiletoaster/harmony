@@ -14,7 +14,7 @@ A simple setup to deploy Syncthing using `docker stack deploy` (Swarm).
 
 Deploy using `docker stack deploy` (Swarm):
 ```
-docker stack deploy -c docker-compose.yml syncthing
+docker stack deploy -c docker-swarm.yml syncthing
 ```
 
 ## References

@@ -16,7 +16,7 @@ A simple setup to deploy Portainer and Portainer Agent using `docker stack deplo
 
 Deploy using `docker stack deploy` (Swarm):
 ```
-docker stack deploy -c docker-compose.yml portainer
+docker stack deploy -c docker-swarm.yml portainer
 ```
 
 ## References
