@@ -29,6 +29,7 @@ services:
       mode: global
       placement:
         constraints: [node.role == manager]
+      # constrain to a single node https://community.traefik.io/t/traefik-proxy-on-docker-swarm-multiple-managers/16642/7
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.mydashboard.rule=Host(`traefik.local.briangebel.com`)"

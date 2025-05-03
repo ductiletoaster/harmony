@@ -13,3 +13,7 @@ ff02::2    ip6-allrouters
 127.0.0.1   librechat.local.briangebel.com
 127.0.0.1   stable-diffusion.local.briangebel.com
 127.0.0.1   syncthing.local.briangebel.com
+
+# Custom loopback (Eventually point to Internal DNS)
+127.0.0.1   local.briangebel.com 
+

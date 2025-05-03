@@ -4,6 +4,8 @@ services:
     image: portainer/agent
     # image: portainer/agent:lts
     # hostname: '{{.Node.Hostname}}'
+    ports: # Can remove this if we get Traefik working throughout the network
+      - "9001:9001"
     environment:
       # REQUIRED: Should be equal to the service name prefixed by "tasks." when
       # deployed inside an overlay network
@@ -37,6 +39,9 @@ services:
     # hostname: '{{.Node.Hostname}}'
     # command: -H unix:///var/run/docker.sock
     command: -H tcp://tasks.agent:9001 --tlsskipverify
+    ports:
+      - "9000:9000"
+      - "8000:8000"
     volumes:
       - portainer_data:/data
     networks:

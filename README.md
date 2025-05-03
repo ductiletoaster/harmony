@@ -34,31 +34,6 @@ Install CachyOS
 - Install 1Password Desktop - https://support.1password.com/install-linux/#arch-linux
     - Setup SSH Agent
 
-### Setup DNS
-Create /etc/NetworkManager/conf.d/use-dnsmasq.conf
-``` 
-sudo touch /etc/NetworkManager/conf.d/use-dnsmasq.conf
-sudo nano /etc/NetworkManager/conf.d/use-dnsmasq.conf
-```
-Update with
-```
-[main]
-dns=dnsmasq
-```
-Create/etc/NetworkManager/dnsmasq.d/local.conf
-``` 
-sudo touch /etc/NetworkManager/dnsmasq.d/local.conf
-sudo nano /etc/NetworkManager/dnsmasq.d/local.conf
-```
-Update with
-```
-address=/.local.briangebel.com/127.0.0.1
-```
-
-then run
-```
-sudo systemctl restart NetworkManager
-```
 
 ### Debug
 Permission issues when running docker commands
@@ -70,4 +45,8 @@ docker login
 Conflict with existing containers try removing all containers
 ```
 docker rm -v -f $(docker ps -qa)
+```
+and to kill all swarm services
+```
+docker service rm $(docker service ls -q)
 ```
