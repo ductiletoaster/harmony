@@ -23,7 +23,7 @@ services:
       - DOCKGE_STACKS_DIR=/opt/stacks
     networks:
       - proxy
-      - agent_network
+      - dockge_network
 
 networks:
   proxy:

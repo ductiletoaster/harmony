@@ -1,8 +1,24 @@
-# docker-swarm-traefik
+# Traefik Setup
 
-Simple `docker-compose.yml` template to run Traefik and a whoami service with Docker Swarm.
+A simple setup to deploy Traefik and a whoami service using either `docker compose` (Standalone) or `docker stack deploy` (Swarm).
 
-## Features:
+## Requirements
+
+1. Install [Docker](http://docker.io).
+2. (optional) Install [Docker-compose](http://docs.docker.com/compose/install/).
+3. Clone this repository
+
+## Docker Standalone
+
+### Deployment:
+Deploy using `docker compose` (Standalone):
+```bash
+docker-compose up -d
+```
+
+## Docker Swarm
+
+### Features:
 
 - Traefik will be deployed to all manager nodes (to have access to Swarm docker.sock)
 - Traefik is listening on ports 80 (http) and 443 (https) on the node itself
@@ -13,15 +29,20 @@ Simple `docker-compose.yml` template to run Traefik and a whoami service with Do
 - Traefik dashboard is enabled at `https://traefik.example.com/dashboard/` with user/pass test/test
 - Traefik `whoami` will be deployed to all Swarm nodes, available at `https://whoami.example.com`
 
-## Deployment:
+### Setup:
 
 - Adapt all domain names in `Host()`
 - Adapt `acme.email`
 - Adapt dashboard username/password
 - For production: write logs files to mounted folder on host
-- Run `docker stack deploy -c docker-swarm.yml proxy`
 
-## Challenges:
+### Deployment:
+Deploy using `docker stack deploy` (Swarm):
+```bash
+docker stack deploy -c docker-swarm.yml proxy
+```
+
+### Challenges:
 
 - Only a single Traefik instance should be run for `httpChallenge` or `tlsChallenge` to work, as Traefik CE (community edition) is not cluster-enabled. If you need clustered LetsEncrypt TLS, use `dnsChallenge` or a different method to generate the certs.
 - Make sure to persist the LetsEncrypt TLS certs, as LetsEncrypt has strict limits. Note that the content of volumes is not shared across nodes.

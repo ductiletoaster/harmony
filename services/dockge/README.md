@@ -15,7 +15,7 @@ A simple setup to deploy Dockge using `docker compose` (Standalone).
 ### Dockge
 
 Deploy using `docker compose` (Standalone):
-```
+```bash
 docker-compose up -d
 ```
 
