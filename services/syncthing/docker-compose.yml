@@ -18,10 +18,8 @@ services:
     networks:
       - proxy
       - syncthing_network
+    restart: unless-stopped
     deploy:
-      mode: global
-      placement:
-        constraints: [node.platform.os == linux]
       labels:
             
         # Web Interface Support

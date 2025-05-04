@@ -24,7 +24,7 @@ services:
       placement:
         constraints: [node.platform.os == linux]
       labels:
-            
+        # https://community.traefik.io/t/routing-inside-docker-swarm-using-worker-hostname/17292/2
         # Agent Support
         - "traefik.enable=true"
         - "traefik.http.routers.portainer-agent.rule=Host(`portainer-agent.local.briangebel.com`)"

@@ -1,0 +1,85 @@
+
+    Date of the guide : May 3, 2025
+
+## Introduction
+
+This is a brief setup guide for docker and docker swarm.
+
+## Prerequisites
+
+- Curiosity
+
+##  Step-by-Step Guide
+
+### Setup 
+
+1. **Update Your System:**
+    First, make sure your system is up-to-date. 
+    Open your terminal and run:
+
+    ```bash
+    sudo pacman -Syu
+    paru -Syu (or yay -Syu, depends on which AUR package helper you use)
+    ```
+
+2. **Install docker:**
+    You will need some packages to fetch packages
+    In terminal run:
+    
+    ```bash
+    paru -S docker docker-compose
+    ```
+
+3. **(optiona) Install Nvidia Container Toolkit:**
+    Supports Nvidia compute in docker
+    In terminal run:
+    
+    ```bash
+    paru -S nvidia-container-toolkit
+    sudo systemctl restart docker
+    ```
+
+### Configure daemon
+
+For **Nvidia Support** in docker swarm.
+In terminal run:
+```bash
+sudo nano /etc/docker/daemon.json 
+```
+Add or modify the configuration to include nvidia runtime:
+
+```json
+{
+  "default-runtime": "nvidia",
+  "runtimes": {
+    "nvidia": {
+      "path": "nvidia-container-runtime",
+      "runtimeArgs": []
+    }
+  }
+}
+```
+Ensure the following ports are open:
+- TCP port 2377 for cluster management communications
+- TCP and UDP port 7946 for communication among nodes
+- UDP port 4789 for overlay network traffic
+
+```
+sudo ufw allow 22/tcp
+sudo ufw allow 2376/tcp
+sudo ufw allow 2377/tcp
+sudo ufw allow 7946/tcp
+sudo ufw allow 7946/udp
+sudo ufw allow 4789/udp
+```
+Finally, restart docker:
+```bash
+sudo systemctl restart docker
+```
+
+> **_NOTE:_** Reference [Firewall](https://documentation.ubuntu.com/server/how-to/security/firewalls/index.html) for more details on managing settings on Ubuntu Server. This is generally useful for other systems as well.
+
+
+### References
+- [Docker daemon configuration overview](https://docs.docker.com/engine/daemon/#use-the-hosts-key-in-daemonjson-with-systemd)
+- [Configure remote access for Docker daemon](https://docs.docker.com/engine/daemon/remote-access/)

@@ -43,5 +43,16 @@ For `workstation-02.local.briangebel.com`
 - traefik <> swarm
 - syncthing <> standalone
 
-# Thoughts
-- Maybe kill swarm for now?
+
+## Problems to solve
+- Expose docker demon to the network daemon.json
+    - Would allow me to manage them from the nas and discover them from traefik with out swarm
+- Run Docker swarm on TrueNAS in VM
+- Routing for applications so we can eliminate ports
+    - Each stack needs a reverse proxy?
+    - Single traefik vs swarm
+    - DNS local with router
+- Hosting libre/open chat with local LLM
+    - For now do this on my local machine
+- File syncing
+    - Setup for local

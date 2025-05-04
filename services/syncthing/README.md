@@ -1,6 +1,6 @@
 # Syncthing Setup
 
-A simple setup to deploy Syncthing using `docker stack deploy` (Swarm).
+A simple setup to deploy Syncthing using `docker compose` (Standalone).
 
 ## Requirements
 
@@ -12,9 +12,9 @@ A simple setup to deploy Syncthing using `docker stack deploy` (Swarm).
 
 ### Syncthing
 
-Deploy using `docker stack deploy` (Swarm):
+Deploy using `docker compose` (Standalone):
 ```
-docker stack deploy -c docker-swarm.yml syncthing
+docker stack deploy -c docker-compose.yml syncthing
 ```
 
 ## References

@@ -4,8 +4,6 @@ services:
   # https://www.reddit.com/r/portainer/comments/12z8ctr/how_to_setup_traefik_to_access_containers_in/
   # Setup .env for portable configuration 
 
-  # Consider Swarm? https://github.com/bluepuma77/traefik-best-practice/tree/main/docker-swarm-traefik
-
   traefik:
     container_name: traefik
     image: "traefik:v3.3"
