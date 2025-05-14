@@ -45,9 +45,8 @@ For `workstation-02.local.briangebel.com`
 
 
 ## Problems to solve
-- Expose docker demon to the network daemon.json
-    - Would allow me to manage them from the nas and discover them from traefik with out swarm
 - Run Docker swarm on TrueNAS in VM
+    - Expose proper ports (is this on the host?)
 - Routing for applications so we can eliminate ports
     - Each stack needs a reverse proxy?
     - Single traefik vs swarm
