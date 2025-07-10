@@ -1,4 +1,0 @@
-services:
-  invokeai:
-    env_file:
-      - stack.env 

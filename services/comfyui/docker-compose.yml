@@ -18,6 +18,15 @@ services:
       - ./output:/output
     stop_signal: SIGKILL
     tty: true
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.comfyui.rule=Host(`comfyui.local.briangebel.com`)"
+      - "traefik.http.routers.comfyui.entrypoints=websecure"
+      - "traefik.http.services.comfyui.loadbalancer.server.port=8188"
+      - "traefik.http.routers.comfyui.service=comfyui"
+      - "traefik.http.routers.comfyui.tls.certresolver=leresolver"
+      - "traefik.http.middlewares.comfyui-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
+      - "traefik.http.middlewares.comfyui-headers.headers.customrequestheaders.X-Forwarded-Host=comfyui.local.briangebel.com"
     deploy:
       resources:
         reservations:
@@ -25,19 +34,14 @@ services:
             - driver: nvidia
               device_ids: ['0']
               capabilities: [compute, utility]
-      labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.comfyui.rule=Host(`comfyui.local.briangebel.com`)"
-        - "traefik.http.routers.comfyui.entrypoints=websecure"
-        - "traefik.http.services.comfyui.loadbalancer.server.port=8188"
-        - "traefik.http.routers.comfyui.service=comfyui"
-        - "traefik.http.routers.comfyui.tls.certresolver=leresolver"
-        - "traefik.http.middlewares.comfyui-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
-        - "traefik.http.middlewares.comfyui-headers.headers.customrequestheaders.X-Forwarded-Host=comfyui.local.briangebel.com"
     networks:
+      - proxy
       - comfyui_network
 
 networks:
+  proxy:
+    external: true
+    name: proxy
   comfyui_network:
     name: comfyui_network
     driver: bridge
