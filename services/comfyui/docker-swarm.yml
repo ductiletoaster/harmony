@@ -18,6 +18,9 @@ services:
       - ./output:/output
     stop_signal: SIGKILL
     tty: true
+    networks:
+      - proxy
+      - comfyui_network
     deploy:
       mode: replicated
       replicas: 1
@@ -38,9 +41,6 @@ services:
             - driver: nvidia
               device_ids: ['0']
               capabilities: [compute, utility]
-    networks:
-      - proxy
-      - comfyui_network
 
 networks:
   proxy:

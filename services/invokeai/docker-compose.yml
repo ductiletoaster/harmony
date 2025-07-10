@@ -18,6 +18,9 @@ services:
       - ./databases:/workspace/databases
     ports:
       - "9090:9090"
+    networks:
+      - proxy
+      - invokeai_network
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.invokeai.rule=Host(`invokeai.local.briangebel.com`)"
@@ -25,7 +28,6 @@ services:
       - "traefik.http.services.invokeai.loabalancer.server.port=9090"
       - "traefik.http.routers.invokeai.service=invokeai"
       - "traefik.http.routers.invokeai.tls.certresolver=leresolver"
-      - "traefik.http.routers.invokeai.middlewares=invokeai-headers"
       - "traefik.http.middlewares.invokeai-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
       - "traefik.http.middlewares.invokeai-headers.headers.customrequestheaders.X-Forwarded-Host=invokeai.local.briangebel.com"
     deploy:
@@ -35,9 +37,6 @@ services:
             - driver: nvidia
               device_ids: ['0']
               capabilities: [compute, utility]
-    networks:
-      - proxy
-      - invokeai_network
 
 networks:
   proxy:
