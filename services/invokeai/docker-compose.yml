@@ -1,0 +1,41 @@
+services:
+  invokeai:
+    image: ghcr.io/invoke-ai/invokeai:latest
+    container_name: invokeai
+    environment:
+      - INVOKEAI_ROOT=/workspace
+      - INVOKEAI_HOST=0.0.0.0
+      - INVOKEAI_PORT=9090
+    volumes:
+      - ./models:/workspace/models
+      - ./outputs:/workspace/outputs
+      - ./configs:/workspace/configs
+      - ./databases:/workspace/databases
+    ports:
+      - "9090:9090"
+    networks:
+      - proxy
+      - invokeai_network
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.invokeai.rule=Host(`invokeai.local.briangebel.com`)"
+        - "traefik.http.routers.invokeai.entrypoints=websecure"
+        - "traefik.http.services.invokeai.loadbalancer.server.port=9090"
+        - "traefik.http.routers.invokeai.service=invokeai"
+        - "traefik.http.routers.invokeai.tls.certresolver=leresolver"
+        - "traefik.http.routers.invokeai.middlewares=invokeai-headers"
+        - "traefik.http.middlewares.invokeai-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
+        - "traefik.http.middlewares.invokeai-headers.headers.customrequestheaders.X-Forwarded-Host=invokeai.local.briangebel.com"
+
+networks:
+  proxy:
+    external: true
+  invokeai_network:
+    name: invokeai_network
+    driver: overlay
+    attachable: true 

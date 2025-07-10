@@ -3,6 +3,7 @@
 # Setup .env for portable configuration 
 
 # https://github.com/bluepuma77/traefik-best-practice/tree/main/docker-swarm-traefik
+name: traefik
 
 services:
   traefik:

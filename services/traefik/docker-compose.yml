@@ -1,3 +1,5 @@
+name: traefik
+
 services:
   
   # https://doc.traefik.io/traefik/v1.4/user-guide/examples/#lets-encrypt-support
@@ -38,3 +40,9 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.whoami.rule=Host(`whoami.local.briangebel.com`)"
       - "traefik.http.routers.whoami.entrypoints=web"
+
+# @todo should standalone setup have network setup?
+# networks:
+#   proxy:
+#     name: proxy
+#     driver: bridge

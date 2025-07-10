@@ -1,0 +1,38 @@
+# Environment files
+.env
+stack.env
+
+# Model files (can be very large)
+models/
+*.safetensors
+*.ckpt
+*.pt
+*.pth
+
+# Output files
+outputs/
+*.png
+*.jpg
+*.jpeg
+*.webp
+
+# Database files
+databases/
+*.db
+*.sqlite
+
+# Log files
+logs/
+*.log
+
+# Configuration files (may contain sensitive data)
+configs/
+*.yaml
+*.yml
+!docker-compose.yml
+!docker-stack.yml
+!override.yml
+
+# Temporary files
+*.tmp
+*.temp 
