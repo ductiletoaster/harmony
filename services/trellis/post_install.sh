@@ -9,12 +9,12 @@ fi
 
 echo "Install stuff that couldn't be installed without GPU"
 # Run the demo setup
-conda run -n trellis ./setup.sh --mipgaussian --diffoctreerast
+./setup.sh --mipgaussian --diffoctreerast
 
 echo "Proving it actually works..."
 
-export CXX=/usr/local/bin/gxx-wrapper
-conda run -n trellis python example.py
+# export CXX=/usr/local/bin/gxx-wrapper
+python example.py
 
 # Mark completion
 touch .post_install_done
