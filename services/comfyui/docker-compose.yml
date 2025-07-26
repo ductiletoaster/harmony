@@ -3,7 +3,7 @@ name: comfyui
 services:
 
   comfy-nvidia:
-    image: ghcr.io/pixeloven/comfyui-docker/comfy-nvidia:latest
+    image: ghcr.io/pixeloven/comfyui-docker/comfy-cuda-extended:latest
     user: ${PUID:-1000}:${PGID:-1000}
     environment:
       - PUID=${PUID:-1000}
@@ -13,7 +13,9 @@ services:
     ports:
       - "${COMFY_PORT:-8188}:${COMFY_PORT:-8188}"
     volumes:
-      - ./extra_model_paths.yaml:/home/ubuntu/app/extra_model_paths.yaml:ro,cached
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - ./services/comfy/base/extra_model_paths.yaml:/home/comfy/app/extra_model_paths.yaml:ro,cached
       - ./data:/data:delegated
       - ./output:/output
     stop_signal: SIGKILL
@@ -23,7 +25,7 @@ services:
       - comfyui_network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.comfyui.rule=Host(`comfyui.local.briangebel.com`)"
+      # - "traefik.http.routers.comfyui.rule=Host(`comfyui.local.briangebel.com`)"
       - "traefik.http.routers.comfyui.entrypoints=websecure"
       - "traefik.http.services.comfyui.loadbalancer.server.port=8188"
       - "traefik.http.routers.comfyui.service=comfyui"
