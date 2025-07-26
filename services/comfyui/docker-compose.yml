@@ -1,17 +1,16 @@
-name: comfyui
+name: comfy
 
 services:
 
-  comfy-nvidia:
+  comfy:
     image: ghcr.io/pixeloven/comfyui-docker/comfy-cuda-extended:latest
+    container_name: comfy
     user: ${PUID:-1000}:${PGID:-1000}
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
       - COMFY_PORT=${COMFY_PORT:-8188}
       - CLI_ARGS=
-    ports:
-      - "${COMFY_PORT:-8188}:${COMFY_PORT:-8188}"
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
@@ -22,16 +21,14 @@ services:
     tty: true
     networks:
       - proxy
-      - comfyui_network
     labels:
       - "traefik.enable=true"
-      # - "traefik.http.routers.comfyui.rule=Host(`comfyui.local.briangebel.com`)"
-      - "traefik.http.routers.comfyui.entrypoints=websecure"
-      - "traefik.http.services.comfyui.loadbalancer.server.port=8188"
-      - "traefik.http.routers.comfyui.service=comfyui"
-      - "traefik.http.routers.comfyui.tls.certresolver=leresolver"
-      - "traefik.http.middlewares.comfyui-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
-      - "traefik.http.middlewares.comfyui-headers.headers.customrequestheaders.X-Forwarded-Host=comfyui.local.briangebel.com"
+      - "traefik.http.routers.comfy.entrypoints=web"
+      - "traefik.http.services.comfy.loadbalancer.server.port=8188"
+      - "traefik.http.routers.comfy.service=comfy"
+      # - "traefik.http.routers.comfy.rule=Host(`comfy.local.briangebel.com`)"
+      # - "traefik.http.routers.comfy.tls=true"
+      # - "traefik.http.routers.comfy.tls.certresolver=letencrypt"
     deploy:
       resources:
         reservations:
@@ -44,8 +41,3 @@ networks:
   proxy:
     external: true
     name: proxy
-  comfyui_network:
-    name: comfyui_network
-    driver: bridge
-
-

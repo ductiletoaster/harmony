@@ -16,20 +16,16 @@ services:
       - ./outputs:/workspace/outputs
       - ./configs:/workspace/configs
       - ./databases:/workspace/databases
-    ports:
-      - "9090:9090"
     networks:
       - proxy
-      - invokeai_network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.invokeai.rule=Host(`invokeai.local.briangebel.com`)"
-      - "traefik.http.routers.invokeai.entrypoints=websecure"
-      - "traefik.http.services.invokeai.loabalancer.server.port=9090"
-      - "traefik.http.routers.invokeai.service=invokeai"
-      - "traefik.http.routers.invokeai.tls.certresolver=leresolver"
-      - "traefik.http.middlewares.invokeai-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
-      - "traefik.http.middlewares.invokeai-headers.headers.customrequestheaders.X-Forwarded-Host=invokeai.local.briangebel.com"
+      - "traefik.http.routers.invoke.entrypoints=web"
+      - "traefik.http.services.invoke.loadbalancer.server.port=9090"
+      - "traefik.http.routers.invoke.service=invoke"
+      # - "traefik.http.routers.invoke.rule=Host(`invoke.local.briangebel.com`)"
+      # - "traefik.http.routers.invoke.tls=true"
+      # - "traefik.http.routers.invoke.tls.certresolver=letencrypt"
     deploy:
       resources:
         reservations:
@@ -42,6 +38,3 @@ networks:
   proxy:
     external: true
     name: proxy
-  invokeai_network:
-    name: invokeai_network
-    driver: bridge
