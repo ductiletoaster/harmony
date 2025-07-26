@@ -6,7 +6,6 @@ services:
     restart: unless-stopped
     networks:
       - proxy
-      - open-webui_network
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
@@ -22,12 +21,12 @@ services:
       - ./open-webui:/app/backend/data
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.open-webui.rule=Host(`chat.local.briangebel.com`)"
-      - "traefik.http.routers.open-webui.entrypoints=websecure"
-      - "traefik.http.routers.open-webui.tls=true"
-      - "traefik.http.routers.open-webui.tls.certresolver=letencrypt"
+      - "traefik.http.routers.open-webui.entrypoints=web"
       - "traefik.http.services.open-webui.loadbalancer.server.port=8080"
       - "traefik.http.routers.open-webui.service=open-webui"
+      # - "traefik.http.routers.open-webui.rule=Host(`chat.local.briangebel.com`)"
+      # - "traefik.http.routers.open-webui.tls=true"
+      # - "traefik.http.routers.open-webui.tls.certresolver=letencrypt"
     depends_on:
       - ollama
     extra_hosts:
@@ -45,21 +44,20 @@ services:
       - COMFYUI_BASE_URL=http://stable-diffusion-webui:7860
     networks:
       - proxy
-      - open-webui_network
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
       - ./ollama:/root/.ollama
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.ollama.rule=Host(`ollama.local.briangebel.com`)"
-      - "traefik.http.routers.ollama.entrypoints=websecure"
-      - "traefik.http.routers.ollama.tls=true"
-      - "traefik.http.routers.ollama.tls.certresolver=letencrypt"
+      - "traefik.http.routers.ollama.entrypoints=web"
       - "traefik.http.services.ollama.loadbalancer.server.port=11434"
       - "traefik.http.routers.ollama.service=ollama"
-      - "traefik.http.routers.ollama.middlewares=ollama-auth"
-      - "traefik.http.middlewares.ollama-auth.basicauth.users=${OLLAMA_API_CREDENTIALS}"
+      # - "traefik.http.routers.ollama.rule=Host(`ollama.local.briangebel.com`)"
+      # - "traefik.http.routers.ollama.tls=true"
+      # - "traefik.http.routers.ollama.tls.certresolver=letencrypt"
+      # - "traefik.http.routers.ollama.middlewares=ollama-auth"
+      # - "traefik.http.middlewares.ollama-auth.basicauth.users=${OLLAMA_API_CREDENTIALS}"
     deploy:
       resources:
         reservations:
@@ -71,9 +69,9 @@ services:
   searxng:
     image: searxng/searxng:latest
     container_name: searxng
+    restart: unless-stopped
     networks:
       - proxy
-      - open-webui_network
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
@@ -81,10 +79,17 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
       - ./searxng:/etc/searxng
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.searxng.entrypoints=web"
+      - "traefik.http.services.searxng.loadbalancer.server.port=8080"
+      - "traefik.http.routers.searxng.service=searxng"
+      # - "traefik.http.routers.searxng.rule=Host(`searxng.local.briangebel.com`)"
+      # - "traefik.http.routers.searxng.tls=true"
+      # - "traefik.http.routers.searxng.tls.certresolver=letencrypt"
     depends_on:
       - ollama
       - open-webui
-    restart: unless-stopped
 
 # whisper
   # mongo:
@@ -185,6 +190,3 @@ networks:
   proxy:
     external: true
     name: proxy
-  open-webui_network:
-    name: open-webui_network
-    driver: bridge

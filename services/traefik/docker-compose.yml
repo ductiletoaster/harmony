@@ -24,9 +24,7 @@ services:
       # - "traefik.http.routers.traefik.rule=Host(`traefik.local.briangebel.com`)"
       - "traefik.http.routers.traefik.service=api@internal"
       - "traefik.http.routers.traefik.entrypoints=web"
-      # - "traefik.http.routers.traefik.middlewares=redirect-to-https"
       - "traefik.http.services.traefik.loadbalancer.server.port=8080"
-      # - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
       - "traefik.http.routers.traefik.middlewares=traefik-auth"
       - "traefik.http.middlewares.traefik-auth.basicauth.users=${TRAEFIK_AUTH:-test:$$apr1$$H6uskkkW$$IgXLP6ewTrSuBkTrqE8wj/}"
     networks:
@@ -37,8 +35,12 @@ services:
     container_name: "traefik-whoami"
     labels:
       - "traefik.enable=true"
-      # - "traefik.http.routers.whoami.rule=Host(`whoami.local.briangebel.com`)"
       - "traefik.http.routers.whoami.entrypoints=web"
+      - "traefik.http.services.whoami.loadbalancer.server.port=8080"
+      - "traefik.http.routers.whoami.service=whoami"
+      # - "traefik.http.routers.whoami.rule=Host(`whoami.local.briangebel.com`)"
+      # - "traefik.http.routers.whoami.tls=true"
+      # - "traefik.http.routers.whoami.tls.certresolver=letencrypt"
     networks:
       - proxy
 
