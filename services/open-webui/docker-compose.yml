@@ -9,12 +9,14 @@ services:
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
-      - 'OLLAMA_BASE_URL=http://ollama:11434'
+      - OLLAMA_BASE_URL=http://ollama:11434
       - ENABLE_RAG_WEB_SEARCH=True
       - RAG_WEB_SEARCH_ENGINE=searxng
       - RAG_WEB_SEARCH_RESULT_COUNT=3
       - RAG_WEB_SEARCH_CONCURRENT_REQUESTS=10
       - SEARXNG_QUERY_URL=http://searxng:8080/search?q=<query>
+      # - ENABLE_IMAGE_GENERATION=True
+      # - COMFYUI_BASE_URL=http://comfy.docker.localhost:8188
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
@@ -24,7 +26,7 @@ services:
       - "traefik.http.routers.open-webui.entrypoints=web"
       - "traefik.http.services.open-webui.loadbalancer.server.port=8080"
       - "traefik.http.routers.open-webui.service=open-webui"
-      # - "traefik.http.routers.open-webui.rule=Host(`chat.local.briangebel.com`)"
+      - "traefik.http.routers.open-webui.rule=Host(`open-webui.docker.localhost`)"
       # - "traefik.http.routers.open-webui.tls=true"
       # - "traefik.http.routers.open-webui.tls.certresolver=letencrypt"
     depends_on:
@@ -40,8 +42,6 @@ services:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
       - OLLAMA_KEEP_ALIVE=24h
-      - ENABLE_IMAGE_GENERATION=True
-      - COMFYUI_BASE_URL=http://stable-diffusion-webui:7860
     networks:
       - proxy
     volumes:
@@ -53,7 +53,7 @@ services:
       - "traefik.http.routers.ollama.entrypoints=web"
       - "traefik.http.services.ollama.loadbalancer.server.port=11434"
       - "traefik.http.routers.ollama.service=ollama"
-      # - "traefik.http.routers.ollama.rule=Host(`ollama.local.briangebel.com`)"
+      - "traefik.http.routers.ollama.rule=Host(`ollama.docker.localhost`)"
       # - "traefik.http.routers.ollama.tls=true"
       # - "traefik.http.routers.ollama.tls.certresolver=letencrypt"
       # - "traefik.http.routers.ollama.middlewares=ollama-auth"
@@ -66,25 +66,41 @@ services:
               device_ids: ['0']
               capabilities: [compute, utility]
 
+  # https://docs.openwebui.com/tutorials/web-search/searxng#docker-compose-setup  
+  # No running as root would be nice and I can edit the settings.yml file
   searxng:
     image: searxng/searxng:latest
     container_name: searxng
     restart: unless-stopped
+    # user: ${PUID:-1000}:${PGID:-1000}
     networks:
       - proxy
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
+      - SEARXNG_HOSTNAME=searxng.docker.localhost
+      # - SEARXNG_PORT=8080
+      # - SEARXNG_BIND_ADDRESS=0.0.0.0
+      - SEARXNG_BASE_URL=http://${SEARXNG_HOSTNAME:-localhost}:${SEARXNG_PORT:-8080}/
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
-      - ./searxng:/etc/searxng
+      - ./searxng:/etc/searxng:rw
+      # - ./searxng/limiter.toml:/etc/searxng/limiter.toml:rw # warning: this file is not used
+      - searxng_data:/var/cache/searxng:rw
+    # cap_drop:
+    #   - ALL
+    # cap_add:
+    #   - CHOWN
+    #   - SETGID
+    #   - SETUID
+    #   - DAC_OVERRIDE
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.searxng.entrypoints=web"
       - "traefik.http.services.searxng.loadbalancer.server.port=8080"
       - "traefik.http.routers.searxng.service=searxng"
-      # - "traefik.http.routers.searxng.rule=Host(`searxng.local.briangebel.com`)"
+      - "traefik.http.routers.searxng.rule=Host(`searxng.docker.localhost`)"
       # - "traefik.http.routers.searxng.tls=true"
       # - "traefik.http.routers.searxng.tls.certresolver=letencrypt"
     depends_on:
@@ -190,3 +206,6 @@ networks:
   proxy:
     external: true
     name: proxy
+
+volumes:
+  searxng_data:

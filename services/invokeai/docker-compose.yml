@@ -23,7 +23,7 @@ services:
       - "traefik.http.routers.invoke.entrypoints=web"
       - "traefik.http.services.invoke.loadbalancer.server.port=9090"
       - "traefik.http.routers.invoke.service=invoke"
-      # - "traefik.http.routers.invoke.rule=Host(`invoke.local.briangebel.com`)"
+      - "traefik.http.routers.invoke.rule=Host(`invoke.docker.localhost`)"
       # - "traefik.http.routers.invoke.tls=true"
       # - "traefik.http.routers.invoke.tls.certresolver=letencrypt"
     deploy:
