@@ -1,0 +1,40 @@
+name: invokeai
+# Any leasons we can learn from InvokeAI?
+# https://github.com/invoke-ai/InvokeAI/blob/main/docker/docker-compose.yml
+# @todo need to test this out and the swarm (rename all the swarm to stack? seems standard)
+# @todo comfyui and invoke should share directory structure for outputs and models
+services:
+  invokeai:
+    image: ghcr.io/invoke-ai/invokeai:latest
+    container_name: invokeai
+    environment:
+      - INVOKEAI_ROOT=/workspace
+      - INVOKEAI_HOST=0.0.0.0
+      - INVOKEAI_PORT=9090
+    volumes:
+      - ./models:/workspace/models
+      - ./outputs:/workspace/outputs
+      - ./configs:/workspace/configs
+      - ./databases:/workspace/databases
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.invoke.entrypoints=web"
+      - "traefik.http.services.invoke.loadbalancer.server.port=9090"
+      - "traefik.http.routers.invoke.service=invoke"
+      - "traefik.http.routers.invoke.rule=Host(`invoke.docker.localhost`)"
+      # - "traefik.http.routers.invoke.tls=true"
+      # - "traefik.http.routers.invoke.tls.certresolver=letencrypt"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ['0']
+              capabilities: [compute, utility]
+
+networks:
+  proxy:
+    external: true
+    name: proxy

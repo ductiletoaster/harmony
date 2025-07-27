@@ -1,42 +1,57 @@
+name: traefik
+
 services:
   
   # https://doc.traefik.io/traefik/v1.4/user-guide/examples/#lets-encrypt-support
   # https://www.reddit.com/r/portainer/comments/12z8ctr/how_to_setup_traefik_to_access_containers_in/
   # Setup .env for portable configuration 
 
-  # Consider Swarm? https://github.com/bluepuma77/traefik-best-practice/tree/main/docker-swarm-traefik
-
   traefik:
     container_name: traefik
-    image: "traefik:v3.3"
-    command:
-      - "--log.level=${LOG_LEVEL:-DEBUG}"
-      - "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entryPoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.leresolver.acme.httpchallenge=true"
-      - "--certificatesresolvers.leresolver.acme.email=brian@pixeloven.com" #Set your email address here, is for the generation of SSL certificates with Let's Encrypt. 
-      - "--certificatesresolvers.leresolver.acme.storage=./acme.json"
-      - "--certificatesresolvers.leresolver.acme.httpchallenge.entrypoint=web"
+    image: "traefik:v3.5"
+    command: --configfile=/traefik.yml
     ports:
       - "80:80"
       - "8080:8080"
       - "443:443"
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "./acme.json:/acme.json"
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik.yml:/traefik.yml:ro # Traefik config file
+      - traefik-certs:/certs # Docker volume to store the acme file for the Certificates
+      #- /var/log:/var/log
     labels:
-      - "traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`)"
-      - "traefik.http.routers.http-catchall.entrypoints=web"
-      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
-      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.entrypoints=web"
+      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+      - "traefik.http.routers.traefik.service=traefik"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.docker.localhost`)"
+      # - "traefik.http.routers.traefik.tls=true"
+      # - "traefik.http.routers.traefik.tls.certresolver=letencrypt"
+    networks:
+      - proxy
 
   whoami:
     image: "traefik/whoami"
     container_name: "traefik-whoami"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.whoami.rule=Host(`whoami.local.briangebel.com`)"
       - "traefik.http.routers.whoami.entrypoints=web"
+      - "traefik.http.services.whoami.loadbalancer.server.port=8080"
+      - "traefik.http.routers.whoami.service=whoami"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.docker.localhost`)"
+      # - "traefik.http.routers.whoami.tls=true"
+      # - "traefik.http.routers.whoami.tls.certresolver=letencrypt"
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    name: proxy
+# docker network create proxy
+# @todo: network should come up before traefik is started
+# @todo invoke and comfy should share the same models
+# @todo move data and output outside of the services path
+
+volumes:
+  traefik-certs:
+    name: traefik-certs

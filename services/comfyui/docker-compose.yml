@@ -1,0 +1,42 @@
+name: comfy
+
+services:
+
+  comfy:
+    image: ghcr.io/pixeloven/comfyui-docker/comfy-cuda-extended:latest
+    container_name: comfy
+    user: ${PUID:-1000}:${PGID:-1000}
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - COMFY_PORT=${COMFY_PORT:-8188}
+      - CLI_ARGS=
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - ./data:/data:delegated
+      - ./output:/output
+    stop_signal: SIGKILL
+    tty: true
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.comfy.entrypoints=web"
+      - "traefik.http.services.comfy.loadbalancer.server.port=8188"
+      - "traefik.http.routers.comfy.service=comfy"
+      - "traefik.http.routers.comfy.rule=Host(`comfy.docker.localhost`)"
+      # - "traefik.http.routers.comfy.tls=true"
+      # - "traefik.http.routers.comfy.tls.certresolver=letencrypt"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ['0']
+              capabilities: [compute, utility]
+
+networks:
+  proxy:
+    external: true
+    name: proxy

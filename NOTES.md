@@ -1,5 +1,57 @@
-# Ideas
-- Could create GIT post clone/pull scripts to setup the repo
-- https://goharbor.io/docs/2.13.0/install-config/ for my own image repo
-- Follow advice [here](https://www.reddit.com/r/selfhosted/comments/152onud/can_i_have_a_domain_name_redirect_to_a_local/) to create local domains
-- https://github.com/gregoryca/traefik/tree/master
+# Homelab Setup
+
+- All apps should run in standalone and swarm
+
+## System Setup
+### TrueNAS
+
+- Domain setup `nas.local.briangebel.com`
+- Document current setup and configuration
+- Applications: Portainer, Syncthing
+- VM with swarm?
+
+### Docker Swarm
+
+Setup for Workstaion-01 and Workstation-02
+- Rename AMD build to `workstation-02`
+- Connect docker swarm 
+- Setup static ips for each .201 and .202
+- Setup domain names for each `workstation-01.local.briangebel.com` and `workstation-02.local.briangebel.com`
+- Setup docker deployments that target hostname
+- Setup Traeffic labels to work for either
+
+### Other Ideas
+- Connect swarm directly to docker on nas but if not use portainer.
+- Install Windows 10 in VM and Office 
+- Try Dockage vs Portainer
+
+## Applications
+My current plan is to deploy as much as possible through docker swarm. Where necessary utilize TrueNAS apps and portainer. 
+
+For `nas.local.briangebel.com`
+- portainer <> apps (standalone)
+- traefik <> swarm
+- syncthing <> apps (standalone)
+
+For `workstation-01.local.briangebel.com`
+- portainer <> swarm
+- traefik <> swarm
+- syncthing <> swarm
+
+For `workstation-02.local.briangebel.com`
+- portainer <> standalone
+- traefik <> swarm
+- syncthing <> standalone
+
+
+## Problems to solve
+- Run Docker swarm on TrueNAS in VM
+    - Expose proper ports (is this on the host?)
+- Routing for applications so we can eliminate ports
+    - Each stack needs a reverse proxy?
+    - Single traefik vs swarm
+    - DNS local with router
+- Hosting libre/open chat with local LLM
+    - For now do this on my local machine
+- File syncing
+    - Setup for local

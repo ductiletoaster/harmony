@@ -1,6 +1,8 @@
 # Portainer Setup
 
-A simple setup to deploy Portainer using `docker-compose` or `docker stack deploy` (Swarm).
+A simple setup to deploy Portainer and Portainer Agent using `docker stack deploy` (Swarm).
+
+> Portainer can be directly deployed as a service in your Docker Swarm cluster. Note that this method will automatically deploy a single instance of the Portainer Server, and deploy the Portainer Agent as a global service on every node in your cluster.
 
 ## Requirements
 
@@ -12,15 +14,11 @@ A simple setup to deploy Portainer using `docker-compose` or `docker stack deplo
 
 ### Portainer & Agent
 
-Deploy using `docker-compose`:
+Deploy using `docker stack deploy` (Swarm):
 ```
-docker-compose up -d
-```
-### Agent Only
-Deploy using `docker-compose`:
-```
-docker-compose up -d agent
+docker stack deploy -c docker-swarm.yml portainer
 ```
 
 ## References
 - [Deploying Portainer behind Traefik Proxy](https://docs.portainer.io/advanced/reverse-proxy/traefik)
+- [Install Portainer CE with Docker Swarm on Linux](https://docs.portainer.io/start/install-ce/server/swarm/linux)

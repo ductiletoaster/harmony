@@ -1,0 +1,63 @@
+
+    Date of the guide : May 4, 2025
+
+## Introduction
+
+This is a brief setup guide for ubuntu server as a virtual LXC on TrueNAS Scale.
+
+## Prerequisites
+
+- Curiosity
+
+##  Step-by-Step Guide
+
+### Setup 
+
+- Add NIC / Install Ubuntu noble 
+- Installing docker https://docs.docker.com/engine/install/ubuntu/
+- Setup docker swarm
+- generate docker token or manager token
+
+After setting up docker swarm and attempting to connect a few nodes to my VM I found that deployments weren't syncing despite the nodes being able to see each other. So I installed a few net tools to check things out.
+
+- apt instal net-tools nmap
+
+Test for open ports
+```bash
+nmap -sT localhost
+```
+If results are similar to the below:
+```
+Starting Nmap 7.94SVN ( https://nmap.org ) at 2025-05-06 03:01 UTC
+Nmap scan report for localhost (127.0.0.1)
+Host is up (0.00011s latency).
+Other addresses for localhost (not scanned): ::1
+All 1000 scanned ports on localhost (127.0.0.1) are in ignored states.
+Not shown: 1000 closed tcp ports (conn-refused)
+
+Nmap done: 1 IP address (1 host up) scanned in 0.06 seconds
+```
+It may be the case that all ports are blocked. Let's see what ports we are listening on:
+```bash
+sudo netstat -ntlp | grep LISTEN
+```
+Again in my case I saw the following:
+```
+tcp        0      0 127.0.0.53:53           0.0.0.0:*               LISTEN      299/systemd-resolve 
+tcp        0      0 127.0.0.54:53           0.0.0.0:*               LISTEN      299/systemd-resolve 
+tcp6       0      0 :::2377                 :::*                    LISTEN      1344/dockerd        
+tcp6       0      0 :::7946                 :::*                    LISTEN      1344/dockerd  
+```
+Install ufw if not already installed.
+```bash
+sudo apt install ufw
+```
+To support ssh and docker swarm let's open a few ports up.
+```bash
+sudo ufw allow 22/tcp
+sudo ufw allow 2376/tcp
+sudo ufw allow 2377/tcp
+sudo ufw allow 7946/tcp
+sudo ufw allow 7946/udp
+sudo ufw allow 4789/udp
+```

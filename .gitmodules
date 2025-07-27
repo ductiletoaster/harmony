@@ -1,3 +1,0 @@
-[submodule "services/ai-stack/stable-diffusion-webui-docker"]
-	path = services/stable-diffusion/stable-diffusion-webui-docker
-	url = git@github.com:ductiletoaster/stable-diffusion-webui-docker.git

@@ -1,6 +1,0 @@
-services:
-  test:
-    image: alpine:3.14
-    command: printenv
-    env_file:
-      - .env.example

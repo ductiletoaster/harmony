@@ -1,4 +1,0 @@
-services:
-  test:
-    env_file:
-      - stack.env
