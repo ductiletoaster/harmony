@@ -1,0 +1,14 @@
+# Services
+services/comfyui/data
+
+services/invokeai/configs
+services/invokeai/databases
+services/invokeai/models
+services/invokeai/outputs
+
+services/open-webui/ollama
+services/open-webui/open-webui
+services/open-webui/searxng
+
+# Secrets
+.env
