@@ -1,0 +1,3 @@
+[submodule "development/ComfyUI-Docker"]
+	path = development/ComfyUI-Docker
+	url = https://github.com/pixeloven/ComfyUI-Docker.git
