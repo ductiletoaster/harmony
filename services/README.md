@@ -1,37 +1,25 @@
-# Harmony Services
+# Services
 
-This directory contains service configurations and setup scripts for the Harmony project.
+This directory contains various Docker Compose services that can be deployed independently or as part of a larger stack.
 
-## 🐳 Docker Services
+## Available Services
 
-The following Docker services are available:
+- **[ComfyUI](./comfyui/)**: AI image generation with ComfyUI
+- **[Filebrowser](./filebrowser/)**: Web-based file manager
+- **[InvokeAI](./invokeai/)**: AI image generation with InvokeAI
+- **[Open WebUI](./open-webui/)**: AI development stack with Open WebUI, Ollama, and Faster Whisper
+- **[Portainer](./portainer/)**: Docker container management
+- **[SearXNG](./searxng/)**: Standalone metasearch engine with Redis caching
+- **[Syncthing](./syncthing/)**: File synchronization service
+- **[Traefik](./traefik/)**: Edge router and reverse proxy
 
-- **ComfyUI** - AI image generation service
-- **Filestash** - Web file manager
-- **InvokeAI** - AI image generation and editing
-- **Open WebUI** - Web interface for AI models
-- **Portainer** - Docker container management
-- **Syncthing** - File synchronization
-- **Traefik** - Reverse proxy and load balancer
+## Common Setup
 
-## 📋 Service Management
+Most services require:
+1. Copy `.env.example` to `.env`
+2. Configure environment variables
+3. Run `docker-compose up -d`
 
-Each service has its own docker-compose.yml file in its respective directory:
+## Network Integration
 
-```bash
-# Navigate to a service directory
-cd services/comfyui
-
-# Start the service
-docker-compose up -d
-
-# Stop the service
-docker-compose down
-
-# View logs
-docker-compose logs -f
-```
-
-## 🔧 General Utilities
-
-- `cleanup.sh` - Docker cleanup script for removing unused containers, volumes, and images 
+Services can be integrated via the shared `proxy` network for Traefik routing. 
