@@ -27,7 +27,6 @@ services:
       - PGID=${PGID:-1000}
       - SEARXNG_HOSTNAME=searxng.docker.localhost
       - SEARXNG_BASE_URL=http://${SEARXNG_HOSTNAME:-localhost}:${SEARXNG_PORT:-8080}/
-      - REDIS_URL=redis://redis:6379
       - SEARXNG_REMOTE_SETUP=${SEARXNG_REMOTE_SETUP:-0}
     volumes:
       - /etc/localtime:/etc/localtime:ro
@@ -35,7 +34,7 @@ services:
       - ${SEARXNG_CONFIG_PATH:-./config}:/etc/searxng:rw
       - searxng_data:/var/cache/searxng:rw
     depends_on:
-      redis:
+      valkey:
         condition: service_started
         required: true
     labels:
