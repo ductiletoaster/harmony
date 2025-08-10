@@ -1,5 +1,7 @@
 name: open-webui
 
+# @todo may consider making my own custom searxng image to simplify this setup
+
 services:
   # Open WebUI service
   open-webui:
@@ -80,6 +82,14 @@ services:
     image: searxng/searxng:latest
     container_name: searxng
     restart: unless-stopped
+    command: >
+      sh -c "
+        if [ "$${SEARXNG_REMOTE_SETUP:-0}" = 1 ]; then
+          mkdir -p /etc/searxng &&
+          wget -O /etc/searxng/settings.yml https://raw.githubusercontent.com/ductiletoaster/harmony/refs/heads/main/services/open-webui/searxng/settings.yml &&
+          wget -O /etc/searxng/limiter.toml https://raw.githubusercontent.com/ductiletoaster/harmony/refs/heads/main/services/open-webui/searxng/limiter.toml;
+        fi &&
+        searxng"
     networks:
       - proxy
       - open-webui

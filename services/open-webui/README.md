@@ -7,6 +7,21 @@ A comprehensive Docker Compose setup for Open WebUI with Ollama, SearXNG, Faster
 ```bash
 docker compose up -d
 ```
+
+## Post-Install Setup
+
+Before starting the stack, run the post-install script to configure SearXNG:
+
+```bash
+./post-install.sh
+```
+
+This script will:
+- Create necessary directories
+- Generate SearXNG configuration with JSON format support
+- Set up Redis integration
+- Create verification scripts
+
 ## What's Included
 
 - **Open WebUI**: Web interface for AI models with RAG capabilities
