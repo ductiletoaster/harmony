@@ -1,0 +1,82 @@
+    Date of the guide : January 2025
+
+## Network Access Configuration
+
+### Overview
+
+This setup uses a dual-domain approach for accessing services, providing both local and network access to your Docker services through Traefik.
+
+### Domain Resolution Strategy
+
+- **`.localhost`** - For on-machine access (resolves to 127.0.0.1)
+- **`.lan`** - For network access (configured in OpenWrt router settings)
+
+### How It Works
+
+The default Traefik rule automatically generates both domains for each service:
+- `servicename.docker.localhost` (local access)
+- `servicename.storage-01.lan` (network access)
+
+This means you can access services from:
+- **Local machine**: `http://traefik.docker.localhost:8080`
+- **Network devices**: `http://traefik.storage-01.lan:8080`
+
+### OpenWrt Router Configuration
+
+The `.lan` domain resolution is configured in your OpenWrt router settings to point to your server's IP address. This allows other devices on your network to access services using the `.lan` domain.
+
+#### Configuration Steps:
+1. Access your OpenWrt router admin interface
+2. Navigate to Network → DHCP and DNS
+3. Add custom DNS entries for `.lan` domains pointing to your server IP
+4. Or configure DNS forwarding for the `.lan` zone
+
+#### Important: Subdomain Resolution
+
+For services like `traefik.storage-01.lan` to work, you need to configure your OpenWrt router to handle subdomains of `storage-01.lan`. There are two approaches:
+
+**Option 1: Wildcard DNS (Recommended)**
+- Add a wildcard entry: `*.storage-01.lan` → `192.168.x.x` (your server IP)
+- This automatically resolves all subdomains like `traefik.storage-01.lan`, `comfy.storage-01.lan`, etc.
+
+**Option 2: Individual Subdomain Entries**
+- Add specific entries for each service:
+  - `traefik.storage-01.lan` → `192.168.x.x`
+  - `whoami.storage-01.lan` → `192.168.x.x`
+  - `comfy.storage-01.lan` → `192.168.x.x`
+
+The wildcard approach is easier to maintain as you add new services.
+
+### Service Examples
+
+With this setup, the following services are automatically accessible:
+
+- **Traefik Dashboard**: 
+  - Local: `traefik.docker.localhost:8080`
+  - Network: `traefik.storage-01.lan:8080`
+- **Whoami Service**: 
+  - Local: `whoami.docker.localhost:80`
+  - Network: `whoami.storage-01.lan:80`
+- **ComfyUI**: 
+  - Local: `comfy.docker.localhost:8188`
+  - Network: `comfy.storage-01.lan:8188`
+
+### Benefits
+
+1. **Flexible Access**: Access services from anywhere on your network
+2. **Automatic Discovery**: No need to manually configure each service
+3. **Consistent Naming**: Predictable domain patterns across all services
+4. **Network Isolation**: `.lan` domains only work within your local network
+
+### Troubleshooting
+
+If `.lan` domains aren't resolving:
+1. Check OpenWrt DNS configuration
+2. Verify your server's IP address hasn't changed
+3. Ensure devices are on the same network
+4. Clear DNS cache on client devices
+
+For Chrome/Chromium users:
+```
+chrome://net-internals/#dns
+``` 

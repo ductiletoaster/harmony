@@ -8,6 +8,23 @@ A simple setup to deploy Traefik and a whoami service using either `docker compo
 2. (optional) Install [Docker-compose](http://docs.docker.com/compose/install/).
 3. Clone this repository
 
+## Network Access Configuration
+
+### Domain Resolution Strategy
+
+This setup uses a dual-domain approach for accessing services:
+
+- **`.localhost`** - For on-machine access (resolves to 127.0.0.1)
+- **`.lan`** - For network access (configured in OpenWrt router settings)
+
+The default Traefik rule automatically generates both domains for each service:
+- `servicename.docker.localhost` (local access)
+- `servicename.storage-01.lan` (network access)
+
+### OpenWrt Configuration
+
+The `.lan` domain resolution is configured in your OpenWrt router settings to point to your server's IP address. This allows other devices on your network to access services using the `.lan` domain.
+
 ## Docker Standalone
 
 ### Deployment:
