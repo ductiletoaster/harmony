@@ -1,49 +1,54 @@
-services:
+name: open-webui
 
+services:
+  # Open WebUI service
   open-webui:
     image: ghcr.io/open-webui/open-webui:latest
     container_name: open-webui
     restart: unless-stopped
     networks:
       - proxy
+      - open-webui
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
       - OLLAMA_BASE_URL=http://ollama:11434
-      - ENABLE_RAG_WEB_SEARCH=True
-      - RAG_WEB_SEARCH_ENGINE=searxng
-      - RAG_WEB_SEARCH_RESULT_COUNT=3
-      - RAG_WEB_SEARCH_CONCURRENT_REQUESTS=10
+      - ENABLE_RAG_WEB_SEARCH=${ENABLE_RAG_WEB_SEARCH:-True}
+      - RAG_WEB_SEARCH_ENGINE=${RAG_WEB_SEARCH_ENGINE:-searxng}
+      - RAG_WEB_SEARCH_RESULT_COUNT=${RAG_WEB_SEARCH_RESULT_COUNT:-3}
+      - RAG_WEB_SEARCH_CONCURRENT_REQUESTS=${RAG_WEB_SEARCH_CONCURRENT_REQUESTS:-10}
       - SEARXNG_QUERY_URL=http://searxng:8080/search?q=<query>
-      # - ENABLE_IMAGE_GENERATION=True
-      # - COMFYUI_BASE_URL=http://comfy.docker.localhost:8188
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
       - ./open-webui:/app/backend/data
+    extra_hosts:
+      - host.docker.internal=host-gateway
+    depends_on:
+      ollama:
+        condition: service_started
+        required: true
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.open-webui.entrypoints=web"
       - "traefik.http.services.open-webui.loadbalancer.server.port=8080"
       - "traefik.http.routers.open-webui.service=open-webui"
-      - "traefik.http.routers.open-webui.rule=Host(`open-webui.docker.localhost`)"
+      - "traefik.http.routers.open-webui.rule=HostRegexp(`open-webui.storage-01.lan`) || Host(`open-webui.docker.localhost`)"
       # - "traefik.http.routers.open-webui.tls=true"
       # - "traefik.http.routers.open-webui.tls.certresolver=letencrypt"
-    depends_on:
-      - ollama
-    extra_hosts:
-      - host.docker.internal:host-gateway
 
+  # Ollama service with GPU acceleration
   ollama:
     image: ollama/ollama:latest
     container_name: ollama
     restart: unless-stopped
+    networks:
+      - proxy
+      - open-webui
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
-      - OLLAMA_KEEP_ALIVE=24h
-    networks:
-      - proxy
+      - OLLAMA_KEEP_ALIVE=${OLLAMA_KEEP_ALIVE:-24h}
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
@@ -53,159 +58,114 @@ services:
       - "traefik.http.routers.ollama.entrypoints=web"
       - "traefik.http.services.ollama.loadbalancer.server.port=11434"
       - "traefik.http.routers.ollama.service=ollama"
-      - "traefik.http.routers.ollama.rule=Host(`ollama.docker.localhost`)"
+      - "traefik.http.routers.ollama.rule=HostRegexp(`ollama.storage-01.lan`) || Host(`ollama.docker.localhost`)"
       # - "traefik.http.routers.ollama.tls=true"
       # - "traefik.http.routers.ollama.tls.certresolver=letencrypt"
       # - "traefik.http.routers.ollama.middlewares=ollama-auth"
       # - "traefik.http.middlewares.ollama-auth.basicauth.users=${OLLAMA_API_CREDENTIALS}"
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              device_ids: ['0']
-              capabilities: [compute, utility]
+    # GPU Configuration for Ollama:
+    # - Set GPU_DRIVER, GPU_COUNT, GPU_CAPABILITIES in .env
+    # - Supported drivers: nvidia, rocm, etc.
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: ${GPU_DRIVER:-nvidia}
+    #           count: ${GPU_COUNT:-all}
+    #           capabilities: 
+    #             - ${GPU_CAPABILITIES:-gpu}
 
-  # https://docs.openwebui.com/tutorials/web-search/searxng#docker-compose-setup  
-  # No running as root would be nice and I can edit the settings.yml file
+  # SearXNG service for RAG functionality
   searxng:
     image: searxng/searxng:latest
     container_name: searxng
     restart: unless-stopped
-    # user: ${PUID:-1000}:${PGID:-1000}
     networks:
       - proxy
+      - open-webui
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
       - SEARXNG_HOSTNAME=searxng.docker.localhost
-      # - SEARXNG_PORT=8080
-      # - SEARXNG_BIND_ADDRESS=0.0.0.0
       - SEARXNG_BASE_URL=http://${SEARXNG_HOSTNAME:-localhost}:${SEARXNG_PORT:-8080}/
+      - REDIS_URL=redis://redis:6379
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
       - ./searxng:/etc/searxng:rw
-      # - ./searxng/limiter.toml:/etc/searxng/limiter.toml:rw # warning: this file is not used
       - searxng_data:/var/cache/searxng:rw
-    # cap_drop:
-    #   - ALL
-    # cap_add:
-    #   - CHOWN
-    #   - SETGID
-    #   - SETUID
-    #   - DAC_OVERRIDE
+    depends_on:
+      redis:
+        condition: service_started
+        required: true
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.searxng.entrypoints=web"
       - "traefik.http.services.searxng.loadbalancer.server.port=8080"
       - "traefik.http.routers.searxng.service=searxng"
-      - "traefik.http.routers.searxng.rule=Host(`searxng.docker.localhost`)"
+      - "traefik.http.routers.searxng.rule=HostRegexp(`searxng.storage-01.lan`) || Host(`searxng.docker.localhost`)"
       # - "traefik.http.routers.searxng.tls=true"
       # - "traefik.http.routers.searxng.tls.certresolver=letencrypt"
-    depends_on:
-      - ollama
+
+  # Faster Whisper service with GPU acceleration
+  faster-whisper:
+    image: lscr.io/linuxserver/faster-whisper:latest
+    container_name: faster-whisper
+    restart: unless-stopped
+    networks:
+      - proxy
       - open-webui
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Etc/UTC}
+      - WHISPER_MODEL=${WHISPER_MODEL:-tiny-int8}
+      - WHISPER_BEAM=${WHISPER_BEAM:-1}
+      - WHISPER_LANG=${WHISPER_LANG:-en}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - ./faster-whisper:/config
+    # GPU Configuration for Faster Whisper:
+    # - Set GPU_DRIVER, GPU_COUNT, GPU_CAPABILITIES in .env
+    # - Supported drivers: nvidia, rocm, etc.
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: ${GPU_DRIVER:-nvidia}
+    #           count: ${GPU_COUNT:-all}
+    #           capabilities: 
+    #             - ${GPU_CAPABILITIES:-gpu}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.faster-whisper.entrypoints=web"
+      - "traefik.http.services.faster-whisper.loadbalancer.server.port=10300"
+      - "traefik.http.routers.faster-whisper.service=faster-whisper"
+      - "traefik.http.routers.faster-whisper.rule=HostRegexp(`faster-whisper.storage-01.lan`) || Host(`faster-whisper.docker.localhost`)"
+      # - "traefik.http.routers.faster-whisper.tls=true"
+      # - "traefik.http.routers.faster-whisper.tls.certresolver=letencrypt"
 
-# whisper
-  # mongo:
-  #   image: mongo
-  #   env_file:
-  #     - .env
-  #   networks:
-  #     - proxy
-  #     - open-webui_network
-  #   restart: unless-stopped
-  #   volumes:
-  #     - /etc/localtime:/etc/localtime:ro
-  #     - /etc/timezone:/etc/timezone:ro
-  #     - ./whisper/db_data:/data/db
-  #     - ./whisper/db_data/logs/:/var/log/mongodb/
-  #   environment:
-  #     - PUID=${PUID:-1000}
-  #     - PGID=${PGID:-1000}
-  #     - MONGO_INITDB_ROOT_USERNAME=${DB_USER:-whishper}
-  #     - MONGO_INITDB_ROOT_PASSWORD=${DB_PASS:-whishper}
-  #   command: ['--logpath', '/var/log/mongodb/mongod.log']
-
-  # translate:
-  #   container_name: whisper-libretranslate
-  #   image: libretranslate/libretranslate:latest-cuda
-  #   env_file:
-  #     - .env
-  #   networks:
-  #     - proxy
-  #     - open-webui_network
-  #   restart: unless-stopped
-  #   volumes:
-  #     - /etc/localtime:/etc/localtime:ro
-  #     - /etc/timezone:/etc/timezone:ro
-  #     - ./whisper/libretranslate/data:/home/libretranslate/.local/share
-  #     - ./whisper/libretranslate/cache:/home/libretranslate/.local/cache
-  #   user: root
-  #   tty: true
-  #   environment:
-  #     - PUID=${PUID:-1000}
-  #     - PGID=${PGID:-1000}
-  #     - LT_DISABLE_WEB_UI=True
-  #     - LT_LOAD_ONLY=${LT_LOAD_ONLY:-en,fr,es}
-  #     - LT_UPDATE_MODELS=True
-  #   deploy:
-  #     resources:
-  #       reservations:
-  #         devices:
-  #         - driver: nvidia
-  #           count: all
-  #           capabilities: [gpu]
-
-  # whisper:
-  #   container_name: whisper
-  #   pull_policy: always
-  #   image: pluja/whishper:latest-gpu
-  #   env_file:
-  #     - .env
-  #   networks:
-  #     - proxy
-  #     - open-webui_network
-  #   volumes:
-  #     - /etc/localtime:/etc/localtime:ro
-  #     - /etc/timezone:/etc/timezone:ro
-  #     - ./whisper/uploads:/app/uploads
-  #     - ./whisper/logs:/var/log/whishper
-  #     - ./whisper/models:/app/models
-  #   restart: unless-stopped
-  #   labels:
-  #     - "traefik.enable=true"
-  #     - "traefik.http.routers.whisper.rule=Host(`whisper.local.briangebel.com`)"
-  #     - "traefik.http.routers.whisper.entrypoints=https"
-  #     - "traefik.http.routers.whisper.tls=true"
-  #     - "traefik.http.routers.whisper.tls.certresolver=cloudflare"
-  #     - "traefik.http.services.whisper.loadbalancer.server.port=80"
-  #     - "traefik.http.routers.whisper.middlewares=default-headers@file"
-  #   depends_on:
-  #     - mongo
-  #     - translate
-  #   environment:
-  #     - PUID=${PUID:-1000}
-  #     - PGID=${PGID:-1000}
-  #     - PUBLIC_INTERNAL_API_HOST=${WHISHPER_HOST}
-  #     - PUBLIC_TRANSLATION_API_HOST=${WHISHPER_HOST}
-  #     - PUBLIC_API_HOST=${WHISHPER_HOST:-}
-  #     - PUBLIC_WHISHPER_PROFILE=gpu
-  #     - WHISPER_MODELS_DIR=/app/models
-  #     - UPLOAD_DIR=/app/uploads
-  #   deploy:
-  #     resources:
-  #       reservations:
-  #         devices:
-  #         - driver: nvidia
-  #           count: all
-  #           capabilities: [gpu]
+  # Redis service for SearXNG caching
+  redis:
+    container_name: redis
+    image: docker.io/valkey/valkey:8-alpine
+    command: valkey-server --save 30 1 --loglevel warning
+    restart: unless-stopped
+    networks:
+      - open-webui
+    volumes:
+      - valkey_data:/data
+    labels:
+      - "traefik.enable=false"  # Redis doesn't need external access
 
 networks:
   proxy:
     external: true
     name: proxy
+  open-webui:
+    name: open-webui
 
 volumes:
   searxng_data:
+  valkey_data: 
