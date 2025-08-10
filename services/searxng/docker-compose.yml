@@ -11,8 +11,8 @@ services:
         if [ "$${SEARXNG_REMOTE_SETUP}" = '1' ]; then
           echo 'Downloading SearXNG configuration files...' &&
           mkdir -p /etc/searxng &&
-          wget -O /etc/searxng/settings.yml https://raw.githubusercontent.com/ductiletoaster/harmony/refs/heads/main/services/searxng/settings.yml &&
-          wget -O /etc/searxng/limiter.toml https://raw.githubusercontent.com/ductiletoaster/harmony/refs/heads/main/services/searxng/limiter.toml &&
+          wget -O /etc/searxng/settings.yml https://raw.githubusercontent.com/ductiletoaster/harmony/refs/heads/main/services/searxng/config/settings.yml &&
+          wget -O /etc/searxng/limiter.toml https://raw.githubusercontent.com/ductiletoaster/harmony/refs/heads/main/services/searxng/config/limiter.toml &&
           echo 'Configuration files downloaded successfully!' &&
           exec /usr/local/searxng/entrypoint.sh;
         else
