@@ -22,6 +22,20 @@ This script will:
 - Set up Redis integration
 - Create verification scripts
 
+## Manual SearXNG Configuration (Dockge Users)
+
+If you're using Dockge and need to override the auto-generated SearXNG configuration files, you can manually replace them:
+
+1. **Download the configuration files:**
+   ```bash
+   wget -O /etc/searxng/settings.yml https://raw.githubusercontent.com/searxng/searxng/master/searx/settings.yml
+   wget -O /etc/searxng/limiter.toml https://raw.githubusercontent.com/searxng/searxng/master/searx/limiter.toml
+   ```
+
+2. **Restart the SearXNG container** in Dockge
+
+This ensures compatibility with Open WebUI by including the `formats: -json` setting in `settings.yml`.
+
 ## What's Included
 
 - **Open WebUI**: Web interface for AI models with RAG capabilities
