@@ -3,7 +3,7 @@ name: comfy
 services:
 
   comfy:
-    image: ghcr.io/pixeloven/comfyui-docker/comfy-cuda-extended:latest
+    image: ghcr.io/pixeloven/comfyui-docker/complete:cuda-latest
     container_name: comfy
     user: ${PUID:-1000}:${PGID:-1000}
     environment:
@@ -15,7 +15,6 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
       - ./data:/data:delegated
-      - ./output:/output
     stop_signal: SIGKILL
     tty: true
     networks:
@@ -33,8 +32,8 @@ services:
         reservations:
           devices:
             - driver: nvidia
-              device_ids: ['0']
-              capabilities: [compute, utility]
+              count: all
+              capabilities: [gpu]
 
 networks:
   proxy:

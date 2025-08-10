@@ -9,22 +9,35 @@ services:
   traefik:
     container_name: traefik
     image: "traefik:v3.5"
-    command: --configfile=/traefik.yml
+    command:
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--api.insecure=true"
+      - "--api.dashboard=true"
+      - "--log.level=INFO"
+      - "--accesslog=true"
+      - "--serversTransport.insecureSkipVerify=true"
+      - "--providers.docker=true"
+      - "--providers.docker.defaultRule=HostRegexp(`{{ trimPrefix `/` .Name }}.storage-01.lan`) || Host(`{{ trimPrefix `/` .Name }}.docker.localhost`)"
+      - "--providers.docker.endpoint=unix:///var/run/docker.sock"
+      - "--providers.docker.exposedByDefault=false"
+      - "--providers.docker.network=proxy"
+    restart: unless-stopped
     ports:
       - "80:80"
       - "8080:8080"
       - "443:443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./traefik.yml:/traefik.yml:ro # Traefik config file
       - traefik-certs:/certs # Docker volume to store the acme file for the Certificates
       #- /var/log:/var/log
     labels:
+      # Dashboard routing
       - "traefik.enable=true"
       - "traefik.http.routers.traefik.entrypoints=web"
       - "traefik.http.services.traefik.loadbalancer.server.port=8080"
       - "traefik.http.routers.traefik.service=traefik"
-      - "traefik.http.routers.traefik.rule=Host(`traefik.docker.localhost`)"
+      - "traefik.http.routers.traefik.rule=HostRegexp(`traefik.storage-01.lan`) || Host(`traefik.docker.localhost`)"
       # - "traefik.http.routers.traefik.tls=true"
       # - "traefik.http.routers.traefik.tls.certresolver=letencrypt"
     networks:
@@ -33,12 +46,13 @@ services:
   whoami:
     image: "traefik/whoami"
     container_name: "traefik-whoami"
+    restart: unless-stopped
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.whoami.entrypoints=web"
       - "traefik.http.services.whoami.loadbalancer.server.port=8080"
       - "traefik.http.routers.whoami.service=whoami"
-      - "traefik.http.routers.whoami.rule=Host(`whoami.docker.localhost`)"
+      - "traefik.http.routers.whoami.rule=HostRegexp(`whoami.storage-01.lan`) || Host(`whoami.docker.localhost`)"
       # - "traefik.http.routers.whoami.tls=true"
       # - "traefik.http.routers.whoami.tls.certresolver=letencrypt"
     networks:

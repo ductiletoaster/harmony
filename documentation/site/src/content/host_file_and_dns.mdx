@@ -3,6 +3,12 @@
 
 ## Introduction
 
+### Domain Resolution Strategy
+
+This setup uses a dual-domain approach for accessing services:
+
+- **`.localhost`** - For on-machine access (resolves to 127.0.0.1)
+- **`.lan`** - For network access (configured in OpenWrt router settings)
 
 ### DNS Configuration 
 Currently I manage DNS records for the following subdomains whcih map to specific local addresses in my network. 
@@ -10,6 +16,13 @@ Currently I manage DNS records for the following subdomains whcih map to specifi
 192.168.68.201  workstation-01.local.briangebel.com 
 192.168.68.202  workstation-02.local.briangebel.com 
 
+### OpenWrt Configuration
+
+The `.lan` domain resolution is configured in your OpenWrt router settings to point to your server's IP address. This allows other devices on your network to access services using the `.lan` domain.
+
+For Docker services with Traefik, the default rule automatically generates both domains:
+- `servicename.docker.localhost` (local access)
+- `servicename.storage-01.lan` (network access)
 
 ### Hostfile
 
