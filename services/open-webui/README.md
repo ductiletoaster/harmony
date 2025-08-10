@@ -1,66 +1,57 @@
-# Open WebUI Service
+# Open WebUI Stack
 
-A comprehensive Docker Compose setup for Open WebUI with Ollama, SearXNG, Faster Whisper, and Redis caching. Supports both GPU and CPU-only configurations.
+A comprehensive AI development stack featuring Open WebUI, Ollama, and Faster Whisper with GPU acceleration support.
 
 ## Quick Start
 
-```bash
-docker compose up -d
-```
-
-## Post-Install Setup
-
-Before starting the stack, run the post-install script to configure SearXNG:
-
-```bash
-./post-install.sh
-```
-
-This script will:
-- Create necessary directories
-- Generate SearXNG configuration with JSON format support
-- Set up Redis integration
-- Create verification scripts
-
-## Manual SearXNG Configuration (Dockge Users)
-
-If you're using Dockge and need to override the auto-generated SearXNG configuration files, you can manually replace them:
-
-1. **Download the configuration files:**
+1. **Copy environment file:**
    ```bash
-   wget -O /etc/searxng/settings.yml https://raw.githubusercontent.com/searxng/searxng/master/searx/settings.yml
-   wget -O /etc/searxng/limiter.toml https://raw.githubusercontent.com/searxng/searxng/master/searx/limiter.toml
+   cp .env.example .env
    ```
 
-2. **Restart the SearXNG container** in Dockge
+2. **Start the stack:**
+   ```bash
+   docker-compose up -d
+   ```
 
-This ensures compatibility with Open WebUI by including the `formats: -json` setting in `settings.yml`.
+3. **Access services:**
+   - **Open WebUI**: http://open-webui.docker.localhost:8080
+   - **Ollama**: http://ollama.docker.localhost:11434
+   - **Faster Whisper**: http://faster-whisper.docker.localhost:10300
 
-## What's Included
+## Services
 
 - **Open WebUI**: Web interface for AI models with RAG capabilities
-- **Ollama**: AI model server (CPU/GPU)
-- **SearXNG**: Search engine for RAG functionality with Redis caching
+- **Ollama**: AI model server with GPU acceleration
 - **Faster Whisper**: Speech-to-text transcription service
-- **Redis**: Caching and session management
 
-## Access URLs
+## Features
 
-### Local Development:
-- Open WebUI: http://open-webui.docker.localhost
-- Ollama: http://ollama.docker.localhost
-- SearXNG: http://searxng.docker.localhost
-- Faster Whisper: http://faster-whisper.docker.localhost
-
-### Network Access:
-- Open WebUI: http://open-webui.storage-01.lan
-- Ollama: http://ollama.storage-01.lan
-- SearXNG: http://searxng.storage-01.lan
-- Faster Whisper: http://faster-whisper.storage-01.lan
+- **GPU Acceleration**: Support for NVIDIA and AMD ROCm drivers
+- **Traefik Integration**: Automatic reverse proxy configuration
+- **Dual Domain Support**: Accessible via `docker.localhost` and `storage-01.lan`
+- **RAG Support**: Web search integration (requires external SearXNG service)
 
 ## Configuration
 
-Copy `.env.example` to `.env` and configure GPU settings if needed:
-- `GPU_DRIVER`: nvidia, rocm, etc.
-- `GPU_COUNT`: all, 1, 2, etc.
-- `GPU_CAPABILITIES`: gpu, compute, utility
+### Environment Variables
+
+- `PUID`/`PGID`: User/Group IDs for file permissions
+- `GPU_DRIVER`: GPU driver type (nvidia, rocm)
+- `GPU_COUNT`: Number of GPUs to use
+- `GPU_CAPABILITIES`: GPU capabilities
+
+### GPU Setup
+
+Enable GPU acceleration by uncommenting the `deploy` sections in `docker-compose.yml` and setting the appropriate environment variables.
+
+## Networks
+
+- `proxy`: External network for Traefik integration
+- `open-webui`: Internal network for service communication
+
+## Volumes
+
+- `./open-webui`: Open WebUI data
+- `./ollama`: Ollama models and data
+- `./faster-whisper`: Faster Whisper configuration

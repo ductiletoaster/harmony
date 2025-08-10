@@ -1,8 +1,13 @@
 name: invokeai
+
+# Single docker-compose.yml for both local and TrueNAS Dockge
+# Use environment variables to configure deployment-specific settings
+
 # Any leasons we can learn from InvokeAI?
 # https://github.com/invoke-ai/InvokeAI/blob/main/docker/docker-compose.yml
 # @todo need to test this out and the swarm (rename all the swarm to stack? seems standard)
 # @todo comfyui and invoke should share directory structure for outputs and models
+
 services:
   invokeai:
     image: ghcr.io/invoke-ai/invokeai:latest
@@ -12,10 +17,10 @@ services:
       - INVOKEAI_HOST=0.0.0.0
       - INVOKEAI_PORT=9090
     volumes:
-      - ./models:/workspace/models
-      - ./outputs:/workspace/outputs
-      - ./configs:/workspace/configs
-      - ./databases:/workspace/databases
+      - ${INVOKEAI_MODELS_PATH:-./models}:/workspace/models
+      - ${INVOKEAI_OUTPUTS_PATH:-./outputs}:/workspace/outputs
+      - ${INVOKEAI_CONFIGS_PATH:-./configs}:/workspace/configs
+      - ${INVOKEAI_DATABASES_PATH:-./databases}:/workspace/databases
     networks:
       - proxy
     labels:
@@ -30,11 +35,12 @@ services:
       resources:
         reservations:
           devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
+            - driver: ${GPU_DRIVER:-nvidia}
+              count: ${GPU_COUNT:-all}
+              capabilities: 
+                - ${GPU_CAPABILITIES:-gpu}
 
 networks:
   proxy:
-    external: true
-    name: proxy
+    name: ${PROXY_NETWORK:-proxy}
+    external: ${PROXY_NETWORK_EXTERNAL:-false}

@@ -1,7 +1,9 @@
 name: comfy
 
-services:
+# Single docker-compose.yml for both local and TrueNAS Dockge
+# Use environment variables to configure deployment-specific settings
 
+services:
   comfy:
     image: ghcr.io/pixeloven/comfyui-docker/complete:cuda-latest
     container_name: comfy
@@ -14,7 +16,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
-      - ./data:/data:delegated
+      - ${COMFY_DATA_PATH:-./data}:/data:delegated
     stop_signal: SIGKILL
     tty: true
     networks:
@@ -31,11 +33,12 @@ services:
       resources:
         reservations:
           devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
+            - driver: ${GPU_DRIVER:-nvidia}
+              count: ${GPU_COUNT:-all}
+              capabilities: 
+                - ${GPU_CAPABILITIES:-gpu}
 
 networks:
   proxy:
-    external: true
-    name: proxy
+    name: ${PROXY_NETWORK:-proxy}
+    external: ${PROXY_NETWORK_EXTERNAL:-false}

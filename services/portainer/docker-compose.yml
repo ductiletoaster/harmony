@@ -1,5 +1,7 @@
+# Single docker-compose.yml for both local and TrueNAS Dockge
+# Use environment variables to configure deployment-specific settings
+
 services:
-  
   agent:
     image: portainer/agent
     # image: portainer/agent:lts
@@ -43,7 +45,7 @@ services:
       - "9000:9000"
       - "8000:8000"
     volumes:
-      - portainer_data:/data
+      - ${PORTAINER_DATA_VOLUME:-portainer_data}:/data
     networks:
       - proxy
       - agent_network
@@ -71,11 +73,13 @@ services:
 
 networks:
   proxy:
-    external: true
+    name: ${PROXY_NETWORK:-proxy}
+    external: ${PROXY_NETWORK_EXTERNAL:-false}
   agent_network:
-    name: agent_network
+    name: ${AGENT_NETWORK_NAME:-agent_network}
     driver: overlay
     attachable: true
 
 volumes:
   portainer_data:
+    name: ${PORTAINER_DATA_NAME:-portainer_data}

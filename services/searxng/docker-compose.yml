@@ -1,0 +1,74 @@
+name: searxng
+
+services:
+  # SearXNG service for metasearch functionality
+  searxng:
+    image: searxng/searxng:latest
+    container_name: searxng
+    restart: unless-stopped
+    entrypoint: >
+      sh -c "
+        if [ "$${SEARXNG_REMOTE_SETUP}" = '1' ]; then
+          echo 'Downloading SearXNG configuration files...' &&
+          mkdir -p /etc/searxng &&
+          wget -O /etc/searxng/settings.yml https://raw.githubusercontent.com/ductiletoaster/harmony/refs/heads/main/services/searxng/settings.yml &&
+          wget -O /etc/searxng/limiter.toml https://raw.githubusercontent.com/ductiletoaster/harmony/refs/heads/main/services/searxng/limiter.toml &&
+          echo 'Configuration files downloaded successfully!' &&
+          exec /usr/local/searxng/entrypoint.sh;
+        else
+          echo 'Skipping remote setup, using local config' &&
+          exec /usr/local/searxng/entrypoint.sh;
+        fi"
+    networks:
+      - proxy
+      - searxng
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - SEARXNG_HOSTNAME=searxng.docker.localhost
+      - SEARXNG_BASE_URL=http://${SEARXNG_HOSTNAME:-localhost}:${SEARXNG_PORT:-8080}/
+      - REDIS_URL=redis://redis:6379
+      - SEARXNG_REMOTE_SETUP=${SEARXNG_REMOTE_SETUP:-0}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - ${SEARXNG_CONFIG_PATH:-./config}:/etc/searxng:rw
+      - searxng_data:/var/cache/searxng:rw
+    depends_on:
+      redis:
+        condition: service_started
+        required: true
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.searxng.entrypoints=web"
+      - "traefik.http.services.searxng.loadbalancer.server.port=8080"
+      - "traefik.http.routers.searxng.service=searxng"
+      - "traefik.http.routers.searxng.rule=HostRegexp(`searxng.storage-01.lan`) || Host(`searxng.docker.localhost`)"
+      # - "traefik.http.routers.searxng.tls=true"
+      # - "traefik.http.routers.searxng.tls.certresolver=letencrypt"
+
+  # Redis service for SearXNG caching
+  redis:
+    container_name: searxng-redis
+    image: docker.io/valkey/valkey:8-alpine
+    command: valkey-server --save 30 1 --loglevel warning
+    restart: unless-stopped
+    networks:
+      - searxng
+    volumes:
+      - valkey_data:/data
+    labels:
+      - "traefik.enable=false"  # Redis doesn't need external access
+
+networks:
+  proxy:
+    name: ${PROXY_NETWORK:-proxy}
+    external: ${PROXY_NETWORK_EXTERNAL:-false}
+  searxng:
+    name: searxng
+
+volumes:
+  searxng_data:
+    name: ${SEARXNG_DATA_VOLUME:-searxng_data}
+  valkey_data:
+    name: ${VALKEY_DATA_VOLUME:-valkey_data} 

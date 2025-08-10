@@ -1,15 +1,17 @@
-services:
+# Single docker-compose.yml for both local and TrueNAS Dockge
+# Use environment variables to configure deployment-specific settings
 
+services:
   syncthing:
     image: lscr.io/linuxserver/syncthing:latest
     hostname: '{{.Node.Hostname}}'
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Etc/UTC
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Etc/UTC}
     volumes:
-      - ./config:/config
-      - ./storage:/storage
+      - ${SYNCTHING_CONFIG_PATH:-./config}:/config
+      - ${SYNCTHING_STORAGE_PATH:-./storage}:/storage
     ports:
       - 8384:8384
       - 22000:22000/tcp
@@ -32,8 +34,9 @@ services:
 
 networks:
   proxy:
-    external: true
+    name: ${PROXY_NETWORK:-proxy}
+    external: ${PROXY_NETWORK_EXTERNAL:-false}
   syncthing_network:
-    name: syncthing_network
+    name: ${SYNCTHING_NETWORK_NAME:-syncthing_network}
     driver: overlay
     attachable: true
