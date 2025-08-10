@@ -32,7 +32,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
-      - ./config:/etc/searxng:rw
+      - ${SEARXNG_CONFIG_PATH:-./config}:/etc/searxng:rw
       - searxng_data:/var/cache/searxng:rw
     depends_on:
       redis:
@@ -62,11 +62,13 @@ services:
 
 networks:
   proxy:
-    external: true
-    name: proxy
+    name: ${PROXY_NETWORK:-proxy}
+    external: ${PROXY_NETWORK_EXTERNAL:-false}
   searxng:
     name: searxng
 
 volumes:
-  searxng_data: 
-  valkey_data: 
+  searxng_data:
+    name: ${SEARXNG_DATA_VOLUME:-searxng_data}
+  valkey_data:
+    name: ${VALKEY_DATA_VOLUME:-valkey_data} 

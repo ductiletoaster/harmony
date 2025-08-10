@@ -17,12 +17,14 @@ Might need to consider whether harmony is one size or only for truenas/dockge
 - docker-stack.yml for dockage (remote)
 - common.yml for shared
 
-But also 
 https://forums.truenas.com/t/electric-eel-beta-where-are-files-for-dockge-containers-stored/13439/3
 https://forums.truenas.com/t/any-tutorials-on-getting-started-with-docker-dockge-in-truenas-scale/29399/3
-**/dockge/data
-**/dockge/stacks
-**/dockge/containers/ollama
-**/dockge/containers/open-webui
 
-How can we make it so files co to HDD and containers host off performance?
+Mnt setup on TrueNAS
+Media/configs/dockge/data
+Media/configs/dockge/stacks
+
+Media/libraries/dockge/containers/ollama
+Media/libraries/dockge/containers/open-webui
+
+My TrueNAS setup as two drive pools. Performance (SSD) and Media (HDD). HDD has a lot more drive capacity and 
