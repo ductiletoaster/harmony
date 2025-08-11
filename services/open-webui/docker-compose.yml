@@ -12,16 +12,37 @@ services:
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
+      
+      # Ollama Configuration
+      - ENABLE_OLLAMA=${ENABLE_OLLAMA:-True}
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://ollama:11434}
       - OLLAMA_API_KEY=${OLLAMA_API_KEY:-ollama}
+      
+      # OpenAI Configuration
+      - ENABLE_OPENAI_API=${ENABLE_OPENAI_API:-True}
       - OPENAI_API_BASE_URL=${OPENAI_API_BASE_URL:-https://api.openai.com/v1}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-sk-proj-1234567890}
-      - BYPASS_MODEL_ACCESS_CONTROL=${BYPASS_MODEL_ACCESS_CONTROL:-True} # so users can see the models set by the admin
-      - ENABLE_RAG_WEB_SEARCH=${ENABLE_RAG_WEB_SEARCH:-True}
-      - RAG_WEB_SEARCH_ENGINE=${RAG_WEB_SEARCH_ENGINE:-searxng}
-      - RAG_WEB_SEARCH_RESULT_COUNT=${RAG_WEB_SEARCH_RESULT_COUNT:-3}
-      - RAG_WEB_SEARCH_CONCURRENT_REQUESTS=${RAG_WEB_SEARCH_CONCURRENT_REQUESTS:-10}
+      
+      # Web Search Configuration (RAG)
+      - ENABLE_WEB_SEARCH=${ENABLE_WEB_SEARCH:-True}
+      - WEB_SEARCH_ENGINE=${WEB_SEARCH_ENGINE:-searxng}
+      - WEB_SEARCH_RESULT_COUNT=${WEB_SEARCH_RESULT_COUNT:-3}
+      - WEB_SEARCH_CONCURRENT_REQUESTS=${WEB_SEARCH_CONCURRENT_REQUESTS:-10}
       - SEARXNG_QUERY_URL=http://searxng:8080/search?q=<query>
+      
+      # Whisper Speech-to-Text Configuration
+      - ENABLE_WHISPER=${ENABLE_WHISPER:-True}
+      - WHISPER_BASE_URL=${WHISPER_BASE_URL:-http://faster-whisper:10300}
+      - WHISPER_MODEL=${WHISPER_MODEL:-tiny}
+      - WHISPER_LANGUAGE=${WHISPER_LANGUAGE:-en}
+      - WHISPER_TASK=${WHISPER_TASK:-transcribe}
+      
+      # Performance Optimization
+      - BYPASS_WEB_SEARCH_EMBEDDING_AND_RETRIEVAL=${BYPASS_WEB_SEARCH_EMBEDDING_AND_RETRIEVAL:-False}
+      - BYPASS_WEB_SEARCH_WEB_LOADER=${BYPASS_WEB_SEARCH_WEB_LOADER:-False}
+      
+      # Model Access Control
+      - BYPASS_MODEL_ACCESS_CONTROL=${BYPASS_MODEL_ACCESS_CONTROL:-True} # so users can see the models set by the admin
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
@@ -91,9 +112,8 @@ services:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
       - TZ=${TZ:-Etc/UTC}
-      - WHISPER_MODEL=${WHISPER_MODEL:-tiny-int8}
-      - WHISPER_BEAM=${WHISPER_BEAM:-1}
-      - WHISPER_LANG=${WHISPER_LANG:-en}
+      - WHISPER_MODEL=${WHISPER_MODEL:-tiny}
+      - WHISPER_LANG=${WHISPER_LANGUAGE:-en}
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro

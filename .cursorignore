@@ -9,6 +9,3 @@ services/invokeai/outputs
 services/open-webui/ollama
 services/open-webui/open-webui
 services/open-webui/faster-whisper
-
-# Secrets
-.env
