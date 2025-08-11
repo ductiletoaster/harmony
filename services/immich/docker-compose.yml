@@ -1,0 +1,199 @@
+name: immich
+
+services:
+  # Immich Server - Main API service
+  immich-server:
+    image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
+    container_name: immich-server
+    restart: unless-stopped
+    networks:
+      - proxy
+      - immich
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Etc/UTC}
+      - NODE_ENV=production
+      - DB_HOSTNAME=immich-postgres
+      - DB_USERNAME=${DB_USERNAME:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - DB_DATABASE_NAME=${DB_DATABASE_NAME:-immich}
+      - DB_PORT=5432
+      - REDIS_HOSTNAME=immich-redis
+      - REDIS_PORT=6379
+      - REDIS_DBINDEX=0
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - UPLOAD_LOCATION=/usr/src/app/upload
+      - IMMICH_WEB_URL=http://immich-web:3000
+      - IMMICH_SERVER_URL=http://immich-server:3001
+      - IMMICH_MACHINE_LEARNING_URL=http://immich-machine-learning:3003
+      - IMMICH_MICROSERVICES_URL=http://immich-microservices:3002
+      - DISABLE_REVERSE_GEOCODING=${DISABLE_REVERSE_GEOCODING:-false}
+      - REVERSE_GEOCODING_PRECISION=${REVERSE_GEOCODING_PRECISION:-3}
+      - LOG_LEVEL=${LOG_LEVEL:-log}
+      - ENABLE_DIAGNOSTICS=${ENABLE_DIAGNOTICS:-true}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - ${IMMICH_UPLOAD_PATH:-./library}:/usr/src/app/upload
+    depends_on:
+      immich-postgres:
+        condition: service_healthy
+        required: true
+      immich-redis:
+        condition: service_started
+        required: true
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.immich-server.entrypoints=web"
+      - "traefik.http.services.immich-server.loadbalancer.server.port=3001"
+      - "traefik.http.routers.immich-server.service=immich-server"
+      - "traefik.http.routers.immich-server.rule=HostRegexp(`immich.storage-01.lan`) || Host(`immich.docker.localhost`)"
+      - "traefik.http.routers.immich-server.middlewares=immich-api"
+      - "traefik.http.middlewares.immich-api.stripprefix.prefixes=/api"
+
+  # Immich Web - Frontend application
+  immich-web:
+    image: ghcr.io/immich-app/immich-web:${IMMICH_VERSION:-release}
+    container_name: immich-web
+    restart: unless-stopped
+    networks:
+      - proxy
+      - immich
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Etc/UTC}
+    depends_on:
+      immich-server:
+        condition: service_started
+        required: true
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.immich-web.entrypoints=web"
+      - "traefik.http.services.immich-web.loadbalancer.server.port=3000"
+      - "traefik.http.routers.immich-web.service=immich-web"
+      - "traefik.http.routers.immich-web.rule=HostRegexp(`immich.storage-01.lan`) || Host(`immich.docker.localhost`)"
+
+  # Immich Machine Learning - AI processing service
+  immich-machine-learning:
+    image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION:-release}
+    container_name: immich-machine-learning
+    restart: unless-stopped
+    networks:
+      - proxy
+      - immich
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Etc/UTC}
+      - NODE_ENV=production
+      - IMMICH_SERVER_URL=http://immich-server:3001
+      - IMMICH_MACHINE_LEARNING_URL=http://immich-machine-learning:3003
+      - IMMICH_MICROSERVICES_URL=http://immich-microservices:3002
+      - LOG_LEVEL=${LOG_LEVEL:-log}
+      - ENABLE_DIAGNOSTICS=${ENABLE_DIAGNOTICS:-true}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - ${IMMICH_ML_MODELS_PATH:-./ml-models}:/usr/src/app/models
+    depends_on:
+      immich-server:
+        condition: service_started
+        required: true
+    # GPU Configuration for Machine Learning:
+    # - Set GPU_DRIVER, GPU_COUNT, GPU_CAPABILITIES in .env
+    # - Supported drivers: nvidia, rocm, etc.
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: ${GPU_DRIVER:-nvidia}
+    #           count: ${GPU_COUNT:-all}
+    #           capabilities: 
+    #             - ${GPU_CAPABILITIES:-gpu}
+
+  # Immich Microservices - Background processing
+  immich-microservices:
+    image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
+    container_name: immich-microservices
+    restart: unless-stopped
+    networks:
+      - proxy
+      - immich
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Etc/UTC}
+      - NODE_ENV=production
+      - DB_HOSTNAME=immich-postgres
+      - DB_USERNAME=${DB_USERNAME:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - DB_DATABASE_NAME=${DB_DATABASE_NAME:-immich}
+      - DB_PORT=5432
+      - REDIS_HOSTNAME=immich-redis
+      - REDIS_PORT=6379
+      - REDIS_DBINDEX=0
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - UPLOAD_LOCATION=/usr/src/app/upload
+      - IMMICH_WEB_URL=http://immich-web:3000
+      - IMMICH_SERVER_URL=http://immich-server:3001
+      - IMMICH_MACHINE_LEARNING_URL=http://immich-machine-learning:3003
+      - IMMICH_MICROSERVICES_URL=http://immich-microservices:3002
+      - DISABLE_REVERSE_GEOCODING=${DISABLE_REVERSE_GEOCODING:-false}
+      - REVERSE_GEOCODING_PRECISION=${REVERSE_GEOCODING_PRECISION:-3}
+      - LOG_LEVEL=${LOG_LEVEL:-log}
+      - ENABLE_DIAGNOSTICS=${ENABLE_DIAGNOTICS:-true}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - ${IMMICH_UPLOAD_PATH:-./library}:/usr/src/app/upload
+    depends_on:
+      immich-postgres:
+        condition: service_healthy
+        required: true
+      immich-redis:
+        condition: service_started
+        required: true
+    command: ["npm", "run", "microservices:start"]
+
+  # PostgreSQL Database
+  immich-postgres:
+    image: postgres:15-alpine
+    container_name: immich-postgres
+    restart: unless-stopped
+    networks:
+      - immich
+    environment:
+      - POSTGRES_USER=${DB_USERNAME:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-postgres}
+      - POSTGRES_DB=${DB_DATABASE_NAME:-immich}
+      - POSTGRES_INITDB_ARGS=--lc-collate=C --lc-ctype=C
+    volumes:
+      - ${IMMICH_DB_PATH:-./postgres}:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_DATABASE_NAME:-immich}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Redis Cache
+  immich-redis:
+    image: redis:7-alpine
+    container_name: immich-redis
+    restart: unless-stopped
+    networks:
+      - immich
+    environment:
+      - TZ=${TZ:-Etc/UTC}
+    volumes:
+      - ${IMMICH_REDIS_PATH:-./redis}:/data
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-}
+
+networks:
+  proxy:
+    name: ${PROXY_NETWORK:-proxy}
+    external: ${PROXY_NETWORK_EXTERNAL:-false}
+  immich:
+    name: immich 

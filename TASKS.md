@@ -28,3 +28,19 @@ Media/libraries/dockge/containers/ollama
 Media/libraries/dockge/containers/open-webui
 
 My TrueNAS setup as two drive pools. Performance (SSD) and Media (HDD). HDD has a lot more drive capacity and 
+
+# OpenWebUI
+- [] default configs/env not working need to figure that one out - results in needing to setup conenctions per account
+
+# Fileborwser
+- [] Move away from truenas app to dockge
+
+# immich
+
+- [x] Create Immich service following project patterns
+- [x] Configure for both local and TrueNAS deployment
+- [x] Include all required services (server, web, ML, microservices, postgres, redis)
+- [x] Add GPU acceleration support
+- [x] Create comprehensive documentation
+
+### Setup OAuth Provider
