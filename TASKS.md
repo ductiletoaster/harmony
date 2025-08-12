@@ -10,37 +10,8 @@ Build an free / open source workflow for AI empowered development for both devel
 - [] easier start of services from root of project
 
 
-### Reconfigure TrueNAS Dockge 
-Might need to consider whether harmony is one size or only for truenas/dockge 
-
-- docker-compose.yml for local
-- docker-stack.yml for dockage (remote)
-- common.yml for shared
-
-https://forums.truenas.com/t/electric-eel-beta-where-are-files-for-dockge-containers-stored/13439/3
-https://forums.truenas.com/t/any-tutorials-on-getting-started-with-docker-dockge-in-truenas-scale/29399/3
-
-Mnt setup on TrueNAS
-Media/configs/dockge/data
-Media/configs/dockge/stacks
-
-Media/libraries/dockge/containers/ollama
-Media/libraries/dockge/containers/open-webui
-
-My TrueNAS setup as two drive pools. Performance (SSD) and Media (HDD). HDD has a lot more drive capacity and 
-
-# OpenWebUI
-- [] default configs/env not working need to figure that one out - results in needing to setup conenctions per account
-
-# Fileborwser
-- [] Move away from truenas app to dockge
-
-# immich
-
-- [x] Create Immich service following project patterns
-- [x] Configure for both local and TrueNAS deployment
-- [x] Include all required services (server, web, ML, microservices, postgres, redis)
-- [x] Add GPU acceleration support
-- [x] Create comprehensive documentation
-
-### Setup OAuth Provider
+### Move apps to dockge 
+- [] Immich
+- [] Filebrowser - given write perms and global access
+- [] syncthing 
+- [] setup https

@@ -1,12 +1,31 @@
 name: traefik
 
-# Single docker-compose.yml for both local and TrueNAS Dockge
-# Use environment variables to configure deployment-specific settings
+# Local development docker-compose.yml with automatic certificate generation
+# Uses mkcert for local HTTPS without storing certificates in repository
 
 services:
-  # https://doc.traefik.io/traefik/v1.4/user-guide/examples/#lets-encrypt-support
-  # https://www.reddit.com/r/portainer/comments/12z8ctr/how_to_setup_traefik_to_access_containers_in/
-  
+  # Certificate generation service
+  certgen:
+    image: golang:alpine
+    container_name: traefik-certgen
+    command: >
+      sh -c "
+        apk add --no-cache git ca-certificates &&
+        go install filippo.io/mkcert@latest &&
+        /go/bin/mkcert -install &&
+        /go/bin/mkcert '*.docker.localhost' '*.storage-01.lan' '*.workstation-01.lan' &&
+        cp *.pem /certs/ &&
+        chown 1000:1000 /certs/*.pem &&
+        echo 'Certificates generated successfully!' &&
+        ls -la /certs/
+      "
+    volumes:
+      - traefik-certs:/certs
+    environment:
+      - CAROOT=/certs
+    restart: "no"
+
+  # Traefik reverse proxy with local certificates
   traefik:
     container_name: traefik
     image: "traefik:v3.5"
@@ -17,12 +36,15 @@ services:
       - "--api.dashboard=true"
       - "--log.level=INFO"
       - "--accesslog=true"
-      - "--serversTransport.insecureSkipVerify=true"
+      - "--serverstransport.insecureskipverify=true"
       - "--providers.docker=true"
-      - "--providers.docker.defaultRule=HostRegexp(`{{ trimPrefix `/` .Name }}.storage-01.lan`) || Host(`{{ trimPrefix `/` .Name }}.docker.localhost`)"
+      - "--providers.docker.defaultRule=Host(`{{ trimPrefix `/` .Name }}.storage-01.lan`) || Host(`{{ trimPrefix `/` .Name }}.workstation-01.lan`) || Host(`{{ trimPrefix `/` .Name }}.docker.localhost`)"
       - "--providers.docker.endpoint=unix:///var/run/docker.sock"
       - "--providers.docker.exposedByDefault=false"
       - "--providers.docker.network=proxy"
+      # Static certificates for local development
+      - "--tls.certificates=/certs/_wildcard.docker.localhost+2.pem"
+      - "--tls.certificates=/certs/_wildcard.docker.localhost+2-key.pem"
     restart: unless-stopped
     ports:
       - "80:80"
@@ -30,39 +52,59 @@ services:
       - "443:443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ${TRAEFIK_CERTS_VOLUME:-traefik-certs}:/certs
+      - traefik-certs:/certs
+    depends_on:
+      certgen:
+        condition: service_completed_successfully
     labels:
-      # Dashboard routing
+      # Dashboard routing - HTTP (redirects to HTTPS)
       - "traefik.enable=true"
-      - "traefik.http.routers.traefik.entrypoints=web"
-      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
-      - "traefik.http.routers.traefik.service=traefik"
-      - "traefik.http.routers.traefik.rule=HostRegexp(`traefik.storage-01.lan`) || Host(`traefik.docker.localhost`)"
-      # - "traefik.http.routers.traefik.tls=true"
-      # - "traefik.http.routers.traefik.tls.certresolver=letencrypt"
+      - "traefik.http.routers.traefik-http.entrypoints=web"
+      - "traefik.http.routers.traefik-http.rule=Host(`traefik.storage-01.lan`) || Host(`traefik.workstation-01.lan`) || Host(`traefik.docker.localhost`)"
+      - "traefik.http.routers.traefik-http.service=traefik-http"
+      - "traefik.http.routers.traefik-http.middlewares=traefik-http-to-https"
+      - "traefik.http.services.traefik-http.loadbalancer.server.port=8080"
+      # Dashboard routing - HTTPS
+      - "traefik.http.routers.traefik-https.entrypoints=websecure"
+      - "traefik.http.routers.traefik-https.rule=Host(`traefik.storage-01.lan`) || Host(`traefik.workstation-01.lan`) || Host(`traefik.docker.localhost`)"
+      - "traefik.http.routers.traefik-https.tls=true"
+      - "traefik.http.routers.traefik-https.service=traefik-https"
+      - "traefik.http.services.traefik-https.loadbalancer.server.port=8080"
+      # HTTP to HTTPS redirect middleware
+      - "traefik.http.middlewares.traefik-http-to-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.traefik-http-to-https.redirectscheme.permanent=true"
     networks:
       - proxy
 
+  # Test service to demonstrate functionality
   whoami:
     image: "traefik/whoami"
     container_name: "traefik-whoami"
     restart: unless-stopped
     labels:
+      # HTTP access (redirects to HTTPS)
       - "traefik.enable=true"
-      - "traefik.http.routers.whoami.entrypoints=web"
-      - "traefik.http.services.whoami.loadbalancer.server.port=8080"
-      - "traefik.http.routers.whoami.service=whoami"
-      - "traefik.http.routers.whoami.rule=HostRegexp(`whoami.storage-01.lan`) || Host(`whoami.docker.localhost`)"
-      # - "traefik.http.routers.whoami.tls=true"
-      # - "traefik.http.routers.whoami.tls.certresolver=letencrypt"
+      - "traefik.http.routers.whoami-http.entrypoints=web"
+      - "traefik.http.routers.whoami-http.rule=Host(`whoami.storage-01.lan`) || Host(`whoami.workstation-01.lan`) || Host(`whoami.docker.localhost`)"
+      - "traefik.http.routers.whoami-http.service=whoami-http"
+      - "traefik.http.routers.whoami-http.middlewares=whoami-http-to-https"
+      - "traefik.http.services.whoami-http.loadbalancer.server.port=80"
+      # HTTPS access with SSL
+      - "traefik.http.routers.whoami-https.entrypoints=websecure"
+      - "traefik.http.routers.whoami-https.rule=Host(`whoami.storage-01.lan`) || Host(`whoami.workstation-01.lan`) || Host(`whoami.docker.localhost`)"
+      - "traefik.http.routers.whoami-https.tls=true"
+      - "traefik.http.routers.whoami-https.service=whoami-https"
+      - "traefik.http.services.whoami-https.loadbalancer.server.port=80"
+      # HTTP to HTTPS redirect middleware
+      - "traefik.http.middlewares.whoami-http-to-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.whoami-https.redirectscheme.permanent=true"
     networks:
       - proxy
 
 networks:
   proxy:
-    name: ${PROXY_NETWORK:-proxy}
-    external: ${PROXY_NETWORK_EXTERNAL:-false}
+    name: proxy
+    external: true
 
 volumes:
   traefik-certs:
-    name: ${TRAEFIK_CERTS_NAME:-traefik-certs}
