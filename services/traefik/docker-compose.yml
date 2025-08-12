@@ -42,9 +42,8 @@ services:
       - "--providers.docker.endpoint=unix:///var/run/docker.sock"
       - "--providers.docker.exposedByDefault=false"
       - "--providers.docker.network=proxy"
-      # Static certificates for local development
-      - "--tls.certificates=/certs/_wildcard.docker.localhost+2.pem"
-      - "--tls.certificates=/certs/_wildcard.docker.localhost+2-key.pem"
+      - "--providers.file.directory=/etc/traefik/dynamic"
+      - "--providers.file.watch=true"
     restart: unless-stopped
     ports:
       - "80:80"
@@ -53,6 +52,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - traefik-certs:/certs
+      - ./dynamic:/etc/traefik/dynamic
     depends_on:
       certgen:
         condition: service_completed_successfully
