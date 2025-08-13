@@ -63,8 +63,7 @@ This deployment includes:
 ### Environment Variables
 
 #### Network Configuration
-- `PROXY_NETWORK`: Name of the proxy network (default: `proxy`)
-- `PROXY_NETWORK_EXTERNAL`: Whether to use external network (default: `false` for local, `true` for TrueNAS)
+- Proxy network is hardcoded to `proxy` and set as external for all environments
 
 #### File Permissions
 - `PUID`: User ID for file permissions (default: `1000`)

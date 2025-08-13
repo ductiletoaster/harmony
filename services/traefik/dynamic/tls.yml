@@ -1,4 +1,0 @@
-tls:
-  certificates:
-    - certFile: /certs/_wildcard.docker.localhost+2.pem
-      keyFile: /certs/_wildcard.docker.localhost+2-key.pem 

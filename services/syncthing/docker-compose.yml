@@ -34,9 +34,9 @@ services:
 
 networks:
   proxy:
-    name: ${PROXY_NETWORK:-proxy}
-    external: ${PROXY_NETWORK_EXTERNAL:-false}
+    name: proxy
+    external: true
   syncthing_network:
-    name: ${SYNCTHING_NETWORK_NAME:-syncthing_network}
+    name: syncthing_network
     driver: overlay
     attachable: true

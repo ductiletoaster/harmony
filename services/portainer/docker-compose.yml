@@ -45,7 +45,7 @@ services:
       - "9000:9000"
       - "8000:8000"
     volumes:
-      - ${PORTAINER_DATA_VOLUME:-portainer_data}:/data
+      - portainer_data:/data
     networks:
       - proxy
       - agent_network
@@ -73,13 +73,13 @@ services:
 
 networks:
   proxy:
-    name: ${PROXY_NETWORK:-proxy}
-    external: ${PROXY_NETWORK_EXTERNAL:-false}
+    name: proxy
+    external: true
   agent_network:
-    name: ${AGENT_NETWORK_NAME:-agent_network}
+    name: agent_network
     driver: overlay
     attachable: true
 
 volumes:
   portainer_data:
-    name: ${PORTAINER_DATA_NAME:-portainer_data}
+    name: portainer_data

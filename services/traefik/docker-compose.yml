@@ -1,49 +1,59 @@
 name: traefik
 
-# Local development docker-compose.yml with automatic certificate generation
-# Uses mkcert for local HTTPS without storing certificates in repository
+# Production-ready Traefik configuration with Let's Encrypt wildcard certificates
+# Uses Cloudflare DNS challenge for domain validation
+
+secrets:
+  cloudflare-api-token:
+    file: ./secrets/cloudflare-api-token.secret
+  cloudflare-email:
+    file: ./secrets/cloudflare-email.secret
 
 services:
-  # Certificate generation service
-  certgen:
-    image: golang:alpine
-    container_name: traefik-certgen
-    command: >
-      sh -c "
-        apk add --no-cache git ca-certificates &&
-        go install filippo.io/mkcert@latest &&
-        /go/bin/mkcert -install &&
-        /go/bin/mkcert '*.docker.localhost' '*.storage-01.lan' '*.workstation-01.lan' &&
-        cp *.pem /certs/ &&
-        chown 1000:1000 /certs/*.pem &&
-        echo 'Certificates generated successfully!' &&
-        ls -la /certs/
-      "
-    volumes:
-      - traefik-certs:/certs
-    environment:
-      - CAROOT=/certs
-    restart: "no"
-
-  # Traefik reverse proxy with local certificates
+  # Traefik reverse proxy with Let's Encrypt wildcard support
   traefik:
     container_name: traefik
     image: "traefik:v3.5"
     command:
+      # Entrypoints
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
+      
+      # API and Dashboard
       - "--api.insecure=true"
       - "--api.dashboard=true"
-      - "--log.level=INFO"
-      - "--accesslog=true"
-      - "--serverstransport.insecureskipverify=true"
+      
+      # Logging
+      - "--log.level=${TRAEFIK_LOG_LEVEL:-INFO}"
+      - "--accesslog=${TRAEFIK_ACCESS_LOG:-true}"
+      
+      # Docker provider
       - "--providers.docker=true"
-      - "--providers.docker.defaultRule=Host(`{{ trimPrefix `/` .Name }}.storage-01.lan`) || Host(`{{ trimPrefix `/` .Name }}.workstation-01.lan`) || Host(`{{ trimPrefix `/` .Name }}.docker.localhost`)"
       - "--providers.docker.endpoint=unix:///var/run/docker.sock"
       - "--providers.docker.exposedByDefault=false"
       - "--providers.docker.network=proxy"
-      - "--providers.file.directory=/etc/traefik/dynamic"
-      - "--providers.file.watch=true"
+      
+      # Let's Encrypt configuration for wildcard certificates using Cloudflare DNS challenge
+      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-admin@pixeloven.com}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/certs/acme.json"
+      - "--certificatesresolvers.letsencrypt.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory"
+
+      - "--certificatesresolvers.letsencrypt.acme.dnschallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare"
+      
+      # Default TLS configuration
+      - "--entrypoints.websecure.http.tls=true"
+      - "--entrypoints.websecure.http.tls.certresolver=letsencrypt"
+      - "--entrypoints.websecure.http.tls.domains[0].main=${DOMAIN_SUFFIX:-pixeloven.com}"
+      - "--entrypoints.websecure.http.tls.domains[0].sans=*.${DOMAIN_SUFFIX:-pixeloven.com}"
+      
+      # HTTP to HTTPS redirect
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+    secrets:
+      - cloudflare-api-token
+      - cloudflare-email
     restart: unless-stopped
     ports:
       - "80:80"
@@ -52,27 +62,17 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - traefik-certs:/certs
-      - ./dynamic:/etc/traefik/dynamic
-    depends_on:
-      certgen:
-        condition: service_completed_successfully
+    environment:
+      - CF_DNS_API_TOKEN_FILE=/run/secrets/cloudflare-api-token
+      - CF_API_EMAIL_FILE=/run/secrets/cloudflare-email
     labels:
-      # Dashboard routing - HTTP (redirects to HTTPS)
+      # Dashboard routing
       - "traefik.enable=true"
-      - "traefik.http.routers.traefik-http.entrypoints=web"
-      - "traefik.http.routers.traefik-http.rule=Host(`traefik.storage-01.lan`) || Host(`traefik.workstation-01.lan`) || Host(`traefik.docker.localhost`)"
-      - "traefik.http.routers.traefik-http.service=traefik-http"
-      - "traefik.http.routers.traefik-http.middlewares=traefik-http-to-https"
-      - "traefik.http.services.traefik-http.loadbalancer.server.port=8080"
-      # Dashboard routing - HTTPS
-      - "traefik.http.routers.traefik-https.entrypoints=websecure"
-      - "traefik.http.routers.traefik-https.rule=Host(`traefik.storage-01.lan`) || Host(`traefik.workstation-01.lan`) || Host(`traefik.docker.localhost`)"
-      - "traefik.http.routers.traefik-https.tls=true"
-      - "traefik.http.routers.traefik-https.service=traefik-https"
-      - "traefik.http.services.traefik-https.loadbalancer.server.port=8080"
-      # HTTP to HTTPS redirect middleware
-      - "traefik.http.middlewares.traefik-http-to-https.redirectscheme.scheme=https"
-      - "traefik.http.middlewares.traefik-http-to-https.redirectscheme.permanent=true"
+      - "traefik.http.routers.traefik-dashboard.entrypoints=websecure"
+      - "traefik.http.routers.traefik-dashboard.rule=Host(`traefik.${DOMAIN_SUFFIX:-pixeloven.com}`)"
+      - "traefik.http.routers.traefik-dashboard.tls=true"
+      - "traefik.http.routers.traefik-dashboard.tls.certresolver=letsencrypt"
+      - "traefik.http.services.traefik-dashboard.loadbalancer.server.port=8080"
     networks:
       - proxy
 
@@ -82,22 +82,12 @@ services:
     container_name: "traefik-whoami"
     restart: unless-stopped
     labels:
-      # HTTP access (redirects to HTTPS)
       - "traefik.enable=true"
-      - "traefik.http.routers.whoami-http.entrypoints=web"
-      - "traefik.http.routers.whoami-http.rule=Host(`whoami.storage-01.lan`) || Host(`whoami.workstation-01.lan`) || Host(`whoami.docker.localhost`)"
-      - "traefik.http.routers.whoami-http.service=whoami-http"
-      - "traefik.http.routers.whoami-http.middlewares=whoami-http-to-https"
-      - "traefik.http.services.whoami-http.loadbalancer.server.port=80"
-      # HTTPS access with SSL
-      - "traefik.http.routers.whoami-https.entrypoints=websecure"
-      - "traefik.http.routers.whoami-https.rule=Host(`whoami.storage-01.lan`) || Host(`whoami.workstation-01.lan`) || Host(`whoami.docker.localhost`)"
-      - "traefik.http.routers.whoami-https.tls=true"
-      - "traefik.http.routers.whoami-https.service=whoami-https"
-      - "traefik.http.services.whoami-https.loadbalancer.server.port=80"
-      # HTTP to HTTPS redirect middleware
-      - "traefik.http.middlewares.whoami-http-to-https.redirectscheme.scheme=https"
-      - "traefik.http.middlewares.whoami-https.redirectscheme.permanent=true"
+      - "traefik.http.routers.whoami.entrypoints=websecure"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.${DOMAIN_SUFFIX:-pixeloven.com}`)"
+      - "traefik.http.routers.whoami.tls=true"
+      - "traefik.http.routers.whoami.tls.certresolver=letsencrypt"
+      - "traefik.http.services.whoami.loadbalancer.server.port=80"
     networks:
       - proxy
 
