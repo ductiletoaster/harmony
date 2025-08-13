@@ -3,12 +3,6 @@ name: traefik
 # Production-ready Traefik configuration with Let's Encrypt wildcard certificates
 # Uses Cloudflare DNS challenge for domain validation
 
-secrets:
-  cloudflare-api-token:
-    file: ./secrets/cloudflare-api-token.secret
-  cloudflare-email:
-    file: ./secrets/cloudflare-email.secret
-
 services:
   # Traefik reverse proxy with Let's Encrypt wildcard support
   traefik:
@@ -51,9 +45,6 @@ services:
       - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
       - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
       - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
-    secrets:
-      - cloudflare-api-token
-      - cloudflare-email
     restart: unless-stopped
     ports:
       - "80:80"
@@ -63,8 +54,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - traefik-certs:/certs
     environment:
-      - CF_DNS_API_TOKEN_FILE=/run/secrets/cloudflare-api-token
-      - CF_API_EMAIL_FILE=/run/secrets/cloudflare-email
+      - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN:-your-cloudflare-api-token-here}
     labels:
       # Dashboard routing
       - "traefik.enable=true"
