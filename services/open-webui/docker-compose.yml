@@ -46,7 +46,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
-      - ${OPEN_WEBUI_DATA_PATH:-./open-webui}:/app/backend/data
+      - open_webui_data:/app/backend/data
     extra_hosts:
       - host.docker.internal:host-gateway
     depends_on:
@@ -77,7 +77,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
-      - ${OLLAMA_DATA_PATH:-./ollama}:/root/.ollama
+      - ollama_data:/root/.ollama
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.ollama.entrypoints=websecure"
@@ -117,7 +117,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
-      - ${FASTER_WHISPER_DATA_PATH:-./faster-whisper}:/config
+      - faster_whisper_data:/config
     # GPU Configuration for Faster Whisper:
     # - Set GPU_DRIVER, GPU_COUNT, GPU_CAPABILITIES in .env
     # - Supported drivers: nvidia, rocm, etc.
@@ -144,3 +144,11 @@ networks:
     external: true
   open-webui:
     name: open-webui
+
+volumes:
+  open_webui_data:
+    name: open_webui_data
+  ollama_data:
+    name: ollama_data
+  faster_whisper_data:
+    name: faster_whisper_data

@@ -12,13 +12,13 @@ services:
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
-      - SEARXNG_HOSTNAME=searxng.docker.localhost
-      - SEARXNG_BASE_URL=http://${SEARXNG_HOSTNAME:-localhost}:${SEARXNG_PORT:-8080}/
+      - SEARXNG_HOSTNAME=${SEARXNG_HOSTNAME:-localhost}
+      - SEARXNG_BASE_URL=https://${SEARXNG_HOSTNAME:-localhost}:${SEARXNG_PORT:-8080}/
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
-      - ${SEARXNG_CONFIG_PATH:-./config}:/etc/searxng:rw
       - searxng_data:/var/cache/searxng:rw
+      - ./config:/etc/searxng:rw
     depends_on:
       valkey:
         condition: service_started
