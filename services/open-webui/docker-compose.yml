@@ -140,7 +140,7 @@ services:
 
 networks:
   proxy:
-    name: ${PROXY_NETWORK:-proxy}
-    external: ${PROXY_NETWORK_EXTERNAL:-false}
+    name: proxy
+    external: true
   open-webui:
     name: open-webui

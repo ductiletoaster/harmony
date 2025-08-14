@@ -52,8 +52,8 @@ docker-compose up -d
 Key environment variables control the deployment behavior:
 
 ### Network Configuration
-- `PROXY_NETWORK` - Name of the proxy network
-- `PROXY_NETWORK_EXTERNAL` - Whether to use external network (true for TrueNAS, false for local)
+- Proxy network is hardcoded to `proxy` and set as external for all services
+- No environment variables needed for network configuration
 
 ### Volume Paths
 - `*_DATA_PATH` - Paths for service data directories
@@ -79,39 +79,32 @@ Key environment variables control the deployment behavior:
 
 ## Networks
 
-### Local Development
-- Networks are created locally with `external: false`
-- Services can communicate via local Docker networking
-
-### TrueNAS Dockge  
-- Networks are external references (`external: true`)
-- Ensure `proxy` network exists before deploying services
-- Network names must match across all services
+### Network Configuration
+- All services use the `proxy` network which is set as external
+- The `proxy` network must be created before deploying any services
+- Network configuration is consistent across all environments
 
 ## Migration Notes
 
 When migrating from local to TrueNAS:
 1. Copy `.env.truenas.example` to `.env`
 2. Update volume paths for your TrueNAS mount points
-3. Set `PROXY_NETWORK_EXTERNAL=true`
-4. Ensure external networks exist
-5. Set appropriate file permissions for TrueNAS paths
-6. Consider using `SEARXNG_REMOTE_SETUP=1` for services that support it
+3. Ensure the `proxy` network exists (it's external for all environments)
+4. Set appropriate file permissions for TrueNAS paths
+5. Consider using `SEARXNG_REMOTE_SETUP=1` for services that support it
 
 ## Example Environment Files
 
 ### Local Development (.env)
 ```bash
-PROXY_NETWORK=proxy
-PROXY_NETWORK_EXTERNAL=false
+# No network configuration needed - proxy network is hardcoded
 OPEN_WEBUI_DATA_PATH=./open-webui
 OLLAMA_DATA_PATH=./ollama
 ```
 
 ### TrueNAS Dockge (.env)
 ```bash
-PROXY_NETWORK=proxy
-PROXY_NETWORK_EXTERNAL=true
+# No network configuration needed - proxy network is hardcoded
 OPEN_WEBUI_DATA_PATH=/mnt/Media/libraries/dockge/open-webui
 OLLAMA_DATA_PATH=/mnt/Media/libraries/dockge/containers/ollama
 ``` 

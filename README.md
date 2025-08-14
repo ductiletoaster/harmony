@@ -12,18 +12,32 @@ Primary goal is to create easy to use set of workflows for managing services. Th
 - Follow [Techno Tim's AI Stack Tutorial](https://technotim.live/posts/ai-stack-tutorial/)
 - [] Expand on instructions of desktop setup
 - [] Setup DNSmasq for resolving local dns
-- [] Setup custom https cert
-- [] Setup .env for traefik and unified launcher https://github.com/dbushell/docker-traefik
+- ✅ Setup custom https cert with Let's Encrypt
+- ✅ Setup multi-environment Traefik deployment
+
+### Infrastructure Overview
+
+The project now supports a multi-environment setup with proper domain-based routing:
+
+| Environment | Domain | IP Address | Purpose |
+|-------------|--------|-------------|---------|
+| Storage Server | `s01.pixeloven.com` | 192.168.8.200 | Storage and backup services |
+| Workstation 1 | `w01.pixeloven.com` | 192.168.8.201 | Development and AI services |
+| Workstation 2 | `w02.pixeloven.com` | 192.168.8.202 | Additional services |
+
+Each environment supports individual subdomains with automatic Let's Encrypt certificates. No DNS API configuration required - each service gets its own certificate automatically.
 
 ### References
 - Heavily influenced by [Techno Tim's AI Stack Tutorial](https://technotim.live/posts/ai-stack-tutorial/).
 - [Portainer](https://github.com/portainer/portainer-compose) docker compose example setup.
+- [Traefik](https://doc.traefik.io/) reverse proxy for service routing and SSL termination.
 
 ## Requirements
 
 1. Install [Docker](http://docker.io).
 2. (optional) Install [Docker-compose](http://docs.docker.com/compose/install/).
 3. Clone this repository
+4. Configure DNS for your domains to point to the correct IP addresses
 
 ### System Setup
 
@@ -34,6 +48,32 @@ Install CachyOS
 - Install 1Password Desktop - https://support.1password.com/install-linux/#arch-linux
     - Setup SSH Agent
 
+### Quick Start
+
+1. **Choose your environment** and copy the appropriate configuration:
+   ```bash
+   cd services/traefik
+   cp .env.s01.example .env.s01  # For storage server
+   # or
+   cp .env.w01.example .env.w01  # For workstation 1
+   # or  
+   cp .env.w02.example .env.w02  # For workstation 2
+   ```
+
+2. **Customize the environment file** with your domain and email:
+   ```bash
+   DOMAIN_SUFFIX=s01.pixeloven.com
+   ACME_EMAIL=admin@pixeloven.com
+   ```
+
+3. **Deploy** using Docker Compose:
+   ```bash
+   docker-compose up -d
+   ```
+
+4. **Access your services**:
+   - Traefik Dashboard: `https://traefik.yourdomain.com`
+   - Test Service: `https://whoami.yourdomain.com`
 
 ### Debug
 Permission issues when running docker commands
