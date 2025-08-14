@@ -16,14 +16,28 @@ This directory contains services that can be deployed in two different environme
 - External network references
 - Suitable for production deployment on TrueNAS Scale
 
+## Available Services
+
+- **traefik** - Reverse proxy with Let's Encrypt support
+- **komodo** - Container and server management platform
+- **portainer** - Container management interface
+- **comfyui** - AI image generation interface
+- **filebrowser** - Web-based file manager
+- **immich** - Photo and video backup service
+- **invokeai** - AI image generation
+- **open-webui** - Web interface for AI models
+- **searxng** - Privacy-focused meta search engine
+- **syncthing** - File synchronization service
+
 ## File Structure
 
 Each service follows this pattern:
 ```
 service-name/
 ├── docker-compose.yml      # Single compose file for both environments
-├── .env.local.example      # Local development environment template
-├── .env.truenas.example    # TrueNAS Dockge environment template
+├── .env.example            # Environment configuration template
+├── .env.local.example      # Local development environment template (if applicable)
+├── .env.truenas.example    # TrueNAS Dockge environment template (if applicable)
 └── README.md              # Service-specific documentation
 ```
 

@@ -1,0 +1,67 @@
+# Single docker-compose.yml for both local and TrueNAS deployments
+# Use environment variables to configure deployment-specific settings
+
+services:
+  # Komodo Core - Main web application
+  komodo-core:
+    image: komodoproject/komodo-core:latest
+    container_name: komodo-core
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - KOMODO_CORE_PORT=3000
+      - KOMODO_CORE_HOST=0.0.0.0
+      # Database configuration
+      - KOMODO_DB_TYPE=sqlite
+      - KOMODO_DB_PATH=/data/komodo.db
+      # Security settings
+      - KOMODO_SECRET_KEY=${KOMODO_SECRET_KEY:-your-secret-key-here}
+      - KOMODO_SESSION_SECRET=${KOMODO_SESSION_SECRET:-your-session-secret-here}
+      # Optional: External database (uncomment if using PostgreSQL/MySQL)
+      # - KOMODO_DB_TYPE=postgres
+      # - KOMODO_DB_HOST=komodo-db
+      # - KOMODO_DB_PORT=5432
+      # - KOMODO_DB_NAME=komodo
+      # - KOMODO_DB_USER=${KOMODO_DB_USER:-komodo}
+      # - KOMODO_DB_PASSWORD=${KOMODO_DB_PASSWORD:-komodo}
+    volumes:
+      - komodo_data:/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - proxy
+    labels:
+      # Traefik routing
+      - "traefik.enable=true"
+      - "traefik.http.routers.komodo.rule=Host(`komodo.${DOMAIN_SUFFIX:-pixeloven.com}`)"
+      - "traefik.http.routers.komodo.entrypoints=websecure"
+      - "traefik.http.services.komodo.loadbalancer.server.port=3000"
+      - "traefik.http.routers.komodo.tls=true"
+      - "traefik.http.routers.komodo.tls.certresolver=letsencrypt"
+
+  # Optional: PostgreSQL database (uncomment if you prefer external database)
+  # komodo-db:
+  #   image: postgres:15-alpine
+  #   container_name: komodo-db
+  #   restart: unless-stopped
+  #   environment:
+  #     - POSTGRES_DB=${KOMODO_DB_NAME:-komodo}
+  #     - POSTGRES_USER=${KOMODO_DB_USER:-komodo}
+  #     - POSTGRES_PASSWORD=${KOMODO_DB_PASSWORD:-komodo}
+  #   volumes:
+  #     - komodo_db_data:/var/lib/postgresql/data
+  #   networks:
+  #     - proxy
+  #   labels:
+  #     - "traefik.enable=false"
+
+networks:
+  proxy:
+    name: proxy
+    external: true
+
+volumes:
+  komodo_data:
+    name: komodo_data
+  # komodo_db_data:
+  #   name: komodo_db_data 
