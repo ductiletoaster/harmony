@@ -29,11 +29,11 @@ services:
         # https://community.traefik.io/t/routing-inside-docker-swarm-using-worker-hostname/17292/2
         # Agent Support
         - "traefik.enable=true"
-        - "traefik.http.routers.portainer-agent.rule=Host(`portainer-agent.local.briangebel.com`)"
+        - "traefik.http.routers.portainer-agent.rule=Host(`portainer-agent.${DOMAIN_SUFFIX:-pixeloven.com}`)"
         - "traefik.http.routers.portainer-agent.entrypoints=websecure"
         - "traefik.http.services.portainer-agent.loadbalancer.server.port=9001"
         - "traefik.http.routers.portainer-agent.service=portainer-agent"
-        - "traefik.http.routers.portainer-agent.tls.certresolver=leresolver"
+        - "traefik.http.routers.portainer-agent.tls.certresolver=letsencrypt"
 
   portainer:
     image: portainer/portainer
@@ -58,18 +58,18 @@ services:
 
         # Frontend
         - "traefik.enable=true"
-        - "traefik.http.routers.portainer.rule=Host(`portainer.local.briangebel.com`)"
+        - "traefik.http.routers.portainer.rule=Host(`portainer.${DOMAIN_SUFFIX:-pixeloven.com}`)"
         - "traefik.http.routers.portainer.entrypoints=websecure"
         - "traefik.http.services.portainer.loadbalancer.server.port=9000"
         - "traefik.http.routers.portainer.service=portainer"
-        - "traefik.http.routers.portainer.tls.certresolver=leresolver"
+        - "traefik.http.routers.portainer.tls.certresolver=letsencrypt"
         
         # Edge Agent Support
-        - "traefik.http.routers.portainer-edge.rule=Host(`portainer-edge.local.briangebel.com`)"
+        - "traefik.http.routers.portainer-edge.rule=Host(`portainer-edge.${DOMAIN_SUFFIX:-pixeloven.com}`)"
         - "traefik.http.routers.portainer-edge.entrypoints=websecure"
         - "traefik.http.services.portainer-edge.loadbalancer.server.port=8000"
         - "traefik.http.routers.portainer-edge.service=portainer-edge"
-        - "traefik.http.routers.portainer-edge.tls.certresolver=leresolver"
+        - "traefik.http.routers.portainer-edge.tls.certresolver=letsencrypt"
 
 networks:
   proxy:

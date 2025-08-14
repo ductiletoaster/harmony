@@ -6,19 +6,6 @@ services:
     image: searxng/searxng:latest
     container_name: searxng
     restart: unless-stopped
-    entrypoint: >
-      sh -c "
-        if [ "$${SEARXNG_REMOTE_SETUP}" = '1' ]; then
-          echo 'Downloading SearXNG configuration files...' &&
-          mkdir -p /etc/searxng &&
-          wget -O /etc/searxng/settings.yml https://raw.githubusercontent.com/ductiletoaster/harmony/refs/heads/main/services/searxng/config/settings.yml &&
-          wget -O /etc/searxng/limiter.toml https://raw.githubusercontent.com/ductiletoaster/harmony/refs/heads/main/services/searxng/config/limiter.toml &&
-          echo 'Configuration files downloaded successfully!' &&
-          exec /usr/local/searxng/entrypoint.sh;
-        else
-          echo 'Skipping remote setup, using local config' &&
-          exec /usr/local/searxng/entrypoint.sh;
-        fi"
     networks:
       - proxy
       - searxng
@@ -27,7 +14,6 @@ services:
       - PGID=${PGID:-1000}
       - SEARXNG_HOSTNAME=searxng.docker.localhost
       - SEARXNG_BASE_URL=http://${SEARXNG_HOSTNAME:-localhost}:${SEARXNG_PORT:-8080}/
-      - SEARXNG_REMOTE_SETUP=${SEARXNG_REMOTE_SETUP:-0}
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
@@ -39,12 +25,12 @@ services:
         required: true
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.searxng.entrypoints=web"
+      - "traefik.http.routers.searxng.entrypoints=websecure"
       - "traefik.http.services.searxng.loadbalancer.server.port=8080"
       - "traefik.http.routers.searxng.service=searxng"
-      - "traefik.http.routers.searxng.rule=HostRegexp(`searxng.storage-01.lan`) || Host(`searxng.docker.localhost`)"
-      # - "traefik.http.routers.searxng.tls=true"
-      # - "traefik.http.routers.searxng.tls.certresolver=letencrypt"
+      - "traefik.http.routers.searxng.rule=Host(`searxng.${DOMAIN_SUFFIX:-pixeloven.com}`)"
+      - "traefik.http.routers.searxng.tls=true"
+      - "traefik.http.routers.searxng.tls.certresolver=letsencrypt"
 
   valkey:
     container_name: searxng-valkey
@@ -67,6 +53,6 @@ networks:
 
 volumes:
   searxng_data:
-    name: ${SEARXNG_DATA_VOLUME:-searxng_data}
+    name: searxng_data
   valkey_data:
-    name: ${VALKEY_DATA_VOLUME:-valkey_data} 
+    name: valkey_data 
