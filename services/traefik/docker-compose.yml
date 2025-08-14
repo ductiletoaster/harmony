@@ -30,7 +30,7 @@ services:
       # Let's Encrypt configuration for wildcard certificates using Cloudflare DNS challenge
       - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-admin@pixeloven.com}"
       - "--certificatesresolvers.letsencrypt.acme.storage=/certs/acme.json"
-      - "--certificatesresolvers.letsencrypt.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory"
+      # - "--certificatesresolvers.letsencrypt.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory"
 
       - "--certificatesresolvers.letsencrypt.acme.dnschallenge=true"
       - "--certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare"
