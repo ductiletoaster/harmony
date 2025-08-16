@@ -38,8 +38,8 @@ services:
       # Default TLS configuration
       - "--entrypoints.websecure.http.tls=true"
       - "--entrypoints.websecure.http.tls.certresolver=letsencrypt"
-      - "--entrypoints.websecure.http.tls.domains[0].main=${DOMAIN_SUFFIX:-pixeloven.com}"
-      - "--entrypoints.websecure.http.tls.domains[0].sans=*.${DOMAIN_SUFFIX:-pixeloven.com}"
+      - "--entrypoints.websecure.http.tls.domains[0].main=${HOSTNAME:-pixeloven.com}"
+      - "--entrypoints.websecure.http.tls.domains[0].sans=*.${HOSTNAME:-pixeloven.com}"
       
       # HTTP to HTTPS redirect
       - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
@@ -59,7 +59,7 @@ services:
       # Dashboard routing
       - "traefik.enable=true"
       - "traefik.http.routers.traefik.entrypoints=websecure"
-      - "traefik.http.routers.traefik.rule=Host(`traefik.${DOMAIN_SUFFIX:-pixeloven.com}`)"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.${HOSTNAME:-pixeloven.com}`)"
       - "traefik.http.routers.traefik.tls=true"
       - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
       - "traefik.http.services.traefik.loadbalancer.server.port=8080"
@@ -74,7 +74,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.whoami.entrypoints=websecure"
-      - "traefik.http.routers.whoami.rule=Host(`whoami.${DOMAIN_SUFFIX:-pixeloven.com}`)"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.${HOSTNAME:-pixeloven.com}`)"
       - "traefik.http.routers.whoami.tls=true"
       - "traefik.http.routers.whoami.tls.certresolver=letsencrypt"
       - "traefik.http.services.whoami.loadbalancer.server.port=80"

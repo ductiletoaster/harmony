@@ -28,7 +28,7 @@ services:
       - "traefik.http.routers.invoke.entrypoints=websecure"
       - "traefik.http.services.invoke.loadbalancer.server.port=9090"
       - "traefik.http.routers.invoke.service=invoke"
-      - "traefik.http.routers.invoke.rule=Host(`invoke.${DOMAIN_SUFFIX:-pixeloven.com}`)"
+      - "traefik.http.routers.invoke.rule=Host(`invoke.${HOSTNAME:-pixeloven.com}`)"
       - "traefik.http.routers.invoke.tls=true"
       - "traefik.http.routers.invoke.tls.certresolver=letsencrypt"
     deploy:

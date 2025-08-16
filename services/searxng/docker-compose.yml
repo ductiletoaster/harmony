@@ -20,7 +20,7 @@ services:
       - searxng_data:/var/cache/searxng:rw
       - ./config:/etc/searxng:rw
     depends_on:
-      valkey:
+      searxng-valkey:
         condition: service_started
         required: true
     labels:
@@ -28,11 +28,11 @@ services:
       - "traefik.http.routers.searxng.entrypoints=websecure"
       - "traefik.http.services.searxng.loadbalancer.server.port=8080"
       - "traefik.http.routers.searxng.service=searxng"
-      - "traefik.http.routers.searxng.rule=Host(`searxng.${DOMAIN_SUFFIX:-pixeloven.com}`)"
+      - "traefik.http.routers.searxng.rule=Host(`searxng.${HOSTNAME:-pixeloven.com}`)"
       - "traefik.http.routers.searxng.tls=true"
       - "traefik.http.routers.searxng.tls.certresolver=letsencrypt"
 
-  valkey:
+  searxng-valkey:
     container_name: searxng-valkey
     image: docker.io/valkey/valkey:8-alpine
     command: valkey-server --save 30 1 --loglevel warning

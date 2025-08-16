@@ -59,7 +59,7 @@ Edit your `.env` file:
 
 ```bash
 # Required: Your domain suffix
-DOMAIN_SUFFIX=s01.pixeloven.com
+HOSTNAME=s01.pixeloven.com
 
 # Required: Email for Let's Encrypt notifications
 ACME_EMAIL=admin@pixeloven.com
@@ -97,7 +97,7 @@ Services are automatically discovered via Docker labels:
 labels:
   - "traefik.enable=true"
   - "traefik.http.routers.myapp.entrypoints=websecure"
-  - "traefik.http.routers.myapp.rule=Host(`myapp.${DOMAIN_SUFFIX}`)"
+        - "traefik.http.routers.myapp.rule=Host(`myapp.${HOSTNAME}`)"
   - "traefik.http.routers.myapp.tls=true"
   - "traefik.http.routers.myapp.tls.certresolver=letsencrypt"
   - "traefik.http.services.myapp.loadbalancer.server.port=80"
@@ -107,7 +107,7 @@ labels:
 
 - **Proxy Network**: External Docker network for service communication
 - **Port Mapping**: 80 (HTTP), 443 (HTTPS), 8080 (Dashboard)
-- **Dashboard**: Accessible at `https://traefik.${DOMAIN_SUFFIX}`
+- **Dashboard**: Accessible at `https://traefik.${HOSTNAME}`
 - **Configuration**: All configuration handled via command-line arguments and Docker labels
 
 ## Troubleshooting

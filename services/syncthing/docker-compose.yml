@@ -26,7 +26,7 @@ services:
             
         # Web Interface Support
         - "traefik.enable=true"
-        - "traefik.http.routers.syncthing.rule=Host(`syncthing.${DOMAIN_SUFFIX:-pixeloven.com}`)"
+        - "traefik.http.routers.syncthing.rule=Host(`syncthing.${HOSTNAME:-pixeloven.com}`)"
         - "traefik.http.routers.syncthing.entrypoints=websecure"
         - "traefik.http.services.syncthing.loadbalancer.server.port=8384"
         - "traefik.http.routers.syncthing.service=syncthing"

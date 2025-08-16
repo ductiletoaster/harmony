@@ -26,7 +26,7 @@ services:
       - "traefik.http.routers.comfy.entrypoints=websecure"
       - "traefik.http.services.comfy.loadbalancer.server.port=8188"
       - "traefik.http.routers.comfy.service=comfy"
-      - "traefik.http.routers.comfy.rule=Host(`comfy.${DOMAIN_SUFFIX:-pixeloven.com}`)"
+      - "traefik.http.routers.comfy.rule=Host(`comfy.${HOSTNAME:-pixeloven.com}`)"
       - "traefik.http.routers.comfy.tls=true"
       - "traefik.http.routers.comfy.tls.certresolver=letsencrypt"
     deploy:

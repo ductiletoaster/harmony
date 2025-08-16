@@ -58,7 +58,7 @@ services:
       - "traefik.http.routers.open-webui.entrypoints=websecure"
       - "traefik.http.services.open-webui.loadbalancer.server.port=8080"
       - "traefik.http.routers.open-webui.service=open-webui"
-      - "traefik.http.routers.open-webui.rule=Host(`open-webui.${DOMAIN_SUFFIX:-pixeloven.com}`)"
+      - "traefik.http.routers.open-webui.rule=Host(`open-webui.${HOSTNAME:-pixeloven.com}`)"
       - "traefik.http.routers.open-webui.tls=true"
       - "traefik.http.routers.open-webui.tls.certresolver=letsencrypt"
 
@@ -83,7 +83,7 @@ services:
       - "traefik.http.routers.ollama.entrypoints=websecure"
       - "traefik.http.services.ollama.loadbalancer.server.port=11434"
       - "traefik.http.routers.ollama.service=ollama"
-      - "traefik.http.routers.ollama.rule=Host(`ollama.${DOMAIN_SUFFIX:-pixeloven.com}`)"
+      - "traefik.http.routers.ollama.rule=Host(`ollama.${HOSTNAME:-pixeloven.com}`)"
       - "traefik.http.routers.ollama.tls=true"
       - "traefik.http.routers.ollama.tls.certresolver=letsencrypt"
       # - "traefik.http.routers.ollama.middlewares=ollama-auth"
@@ -134,7 +134,7 @@ services:
       - "traefik.http.routers.faster-whisper.entrypoints=websecure"
       - "traefik.http.services.faster-whisper.loadbalancer.server.port=10300"
       - "traefik.http.routers.faster-whisper.service=faster-whisper"
-      - "traefik.http.routers.faster-whisper.rule=Host(`faster-whisper.${DOMAIN_SUFFIX:-pixeloven.com}`)"
+      - "traefik.http.routers.faster-whisper.rule=Host(`faster-whisper.${HOSTNAME:-pixeloven.com}`)"
       - "traefik.http.routers.faster-whisper.tls=true"
       - "traefik.http.routers.faster-whisper.tls.certresolver=letsencrypt"
 

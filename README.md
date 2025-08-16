@@ -62,7 +62,7 @@ Install CachyOS
 
 2. **Customize the environment file** with your domain and email:
    ```bash
-   DOMAIN_SUFFIX=s01.pixeloven.com
+   HOSTNAME=s01.pixeloven.com
    ACME_EMAIL=admin@pixeloven.com
    ```
 
