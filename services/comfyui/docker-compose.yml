@@ -8,11 +8,14 @@ services:
     image: ghcr.io/pixeloven/comfyui-docker/complete:cuda-latest
     container_name: comfy
     user: ${PUID:-1000}:${PGID:-1000}
+    runtime: nvidia
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
       - COMFY_PORT=${COMFY_PORT:-8188}
       - CLI_ARGS=
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
@@ -29,14 +32,6 @@ services:
       - "traefik.http.routers.comfy.rule=Host(`comfy.${HOSTNAME:-pixeloven.com}`)"
       - "traefik.http.routers.comfy.tls=true"
       - "traefik.http.routers.comfy.tls.certresolver=letsencrypt"
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: ${GPU_DRIVER:-nvidia}
-              count: ${GPU_COUNT:-all}
-              capabilities: 
-                - ${GPU_CAPABILITIES:-gpu}
 
 networks:
   proxy:
