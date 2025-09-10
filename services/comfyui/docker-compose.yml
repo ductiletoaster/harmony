@@ -20,8 +20,8 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
       - ${COMFY_DATA_PATH:-./data}:/data:delegated
-    stop_signal: SIGKILL
-    tty: true
+    # stop_signal: SIGKILL
+    # tty: true
     networks:
       - proxy
     labels:
@@ -37,3 +37,8 @@ networks:
   proxy:
     name: proxy
     external: true
+
+# We should NFS mount this
+# volumes:
+#   data:
+#     external: true

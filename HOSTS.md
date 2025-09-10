@@ -1,2 +1,1 @@
-Do I spin up traefik and komodo periphery as containers and then connect then trreafik isn't managed by komodo on each host...
-
+Currently we set HOSTNAME on each host to allow for more portable deployments. We need to do the same for PUID some how. I'd also like to move all services to PUID=1000
