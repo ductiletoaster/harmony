@@ -20,8 +20,8 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
       - ${COMFY_DATA_PATH:-./data}:/data:delegated
-    stop_signal: SIGKILL
-    tty: true
+    # stop_signal: SIGKILL
+    # tty: true
     networks:
       - proxy
     labels:
@@ -33,7 +33,7 @@ services:
       - "traefik.http.routers.comfy.tls=true"
       - "traefik.http.routers.comfy.tls.certresolver=letsencrypt"
 
-networks:
-  proxy:
-    name: proxy
-    external: true
+# networks:
+#   proxy:
+#     name: proxy
+#     external: true
