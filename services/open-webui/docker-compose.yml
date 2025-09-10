@@ -88,17 +88,6 @@ services:
       - "traefik.http.routers.ollama.tls.certresolver=letsencrypt"
       # - "traefik.http.routers.ollama.middlewares=ollama-auth"
       # - "traefik.http.middlewares.ollama-auth.basicauth.users=${OLLAMA_API_CREDENTIALS}"
-    # GPU Configuration for Ollama:
-    # - Set GPU_DRIVER, GPU_COUNT, GPU_CAPABILITIES in .env
-    # - Supported drivers: nvidia, rocm, etc.
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: ${GPU_DRIVER:-nvidia}
-    #           count: ${GPU_COUNT:-all}
-    #           capabilities: 
-    #             - ${GPU_CAPABILITIES:-gpu}
 
   # Faster Whisper service with GPU acceleration
   faster-whisper:
@@ -118,17 +107,6 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
       - faster_whisper_data:/config
-    # GPU Configuration for Faster Whisper:
-    # - Set GPU_DRIVER, GPU_COUNT, GPU_CAPABILITIES in .env
-    # - Supported drivers: nvidia, rocm, etc.
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: ${GPU_DRIVER:-nvidia}
-    #           count: ${GPU_COUNT:-all}
-    #           capabilities: 
-    #             - ${GPU_CAPABILITIES:-gpu}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.faster-whisper.entrypoints=websecure"
