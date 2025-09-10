@@ -22,8 +22,8 @@ services:
       - ${COMFY_DATA_PATH:-./data}:/data:delegated
     # stop_signal: SIGKILL
     # tty: true
-    networks:
-      - proxy
+    # networks:
+    #   - proxy
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.comfy.entrypoints=websecure"
