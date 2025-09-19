@@ -5,7 +5,7 @@ name: comfy
 
 services:
   comfy:
-    image: ghcr.io/pixeloven/comfyui-docker/complete:cuda-latest
+    image: ghcr.io/pixeloven/comfyui-docker/${COMFY_IMAGE:-core}:cuda-latest
     container_name: comfy
     user: ${PUID:-1000}:${PGID:-1000}
     runtime: nvidia
