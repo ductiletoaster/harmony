@@ -19,12 +19,12 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
-      - ${COMFY_CUSTOM_NODE_PATH:-./data/custom_nodes}:/app/custom_nodes:rw
-      - ${COMFY_INPUT_PATH:-./data/input}:/app/input:rw
-      - ${COMFY_MODEL_PATH:-./data/models}:/app/models:ro
-      - ${COMFY_OUTPUT_PATH:-./data/output}:/app/output:rw
-      - ${COMFY_TEMP_PATH:-./data/temp}:/app/temp:rw
-      - ${COMFY_USER_PATH:-./data/user}:/app/user:rw
+      - ${COMFY_CUSTOM_NODE_PATH:-./data/custom_nodes}:/app/custom_nodes
+      - ${COMFY_INPUT_PATH:-./data/input}:/app/input
+      - ${COMFY_MODEL_PATH:-./data/models}:/app/models
+      - ${COMFY_OUTPUT_PATH:-./data/output}:/app/output
+      - ${COMFY_TEMP_PATH:-./data/temp}:/app/temp
+      - ${COMFY_USER_PATH:-./data/user}:/app/user
     # stop_signal: SIGKILL
     # tty: true
     networks:
