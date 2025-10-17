@@ -1,52 +1,15 @@
 name: immich
 
-services:
-  # Immich Server - Main API service
-  immich-server:
-    image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
-    container_name: immich-server
-    restart: unless-stopped
-    networks:
-      - immich
-    environment:
-      - PUID=${PUID:-1000}
-      - PGID=${PGID:-1000}
-      - TZ=${TZ:-Etc/UTC}
-      - NODE_ENV=production
-      - DB_HOSTNAME=immich-postgres
-      - DB_USERNAME=${DB_USERNAME:-postgres}
-      - DB_PASSWORD=${DB_PASSWORD:-postgres}
-      - DB_DATABASE_NAME=${DB_DATABASE_NAME:-immich}
-      - DB_PORT=5432
-      - REDIS_HOSTNAME=immich-redis
-      - REDIS_PORT=6379
-      - REDIS_DBINDEX=0
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
-      - UPLOAD_LOCATION=/usr/src/app/upload
-      - IMMICH_WEB_URL=http://immich-web:3000
-      - IMMICH_SERVER_URL=http://immich-server:3001
-      - IMMICH_MACHINE_LEARNING_URL=http://immich-machine-learning:3003
-      - IMMICH_MICROSERVICES_URL=http://immich-microservices:3002
-      - DISABLE_REVERSE_GEOCODING=${DISABLE_REVERSE_GEOCODING:-false}
-      - REVERSE_GEOCODING_PRECISION=${REVERSE_GEOCODING_PRECISION:-3}
-      - LOG_LEVEL=${LOG_LEVEL:-log}
-      - ENABLE_DIAGNOSTICS=${ENABLE_DIAGNOTICS:-true}
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
-      - ${IMMICH_UPLOAD_PATH:-./library}:/usr/src/app/upload
-    depends_on:
-      immich-postgres:
-        condition: service_healthy
-        required: true
-      immich-redis:
-        condition: service_started
-        required: true
+# Single docker-compose.yml for both local and TrueNAS Dockge
+# Use environment variables to configure deployment-specific settings
 
-  # Immich Web - Frontend application
-  immich-web:
-    image: ghcr.io/immich-app/immich-web:${IMMICH_VERSION:-release}
-    container_name: immich-web
+services:
+  immich-server:
+    container_name: immich-server
+    image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
+    # extends:
+    #   file: hwaccel.transcoding.yml
+    #   service: cpu # set to one of [nvenc, quicksync, rkmpp, vaapi, vaapi-wsl] for accelerated transcoding
     restart: unless-stopped
     networks:
       - proxy
@@ -55,23 +18,33 @@ services:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
       - TZ=${TZ:-Etc/UTC}
+    volumes:
+      - ${UPLOAD_LOCATION}:/data
+      - /etc/localtime:/etc/localtime:ro
+    env_file:
+      - .env
     depends_on:
-      immich-server:
-        condition: service_started
-        required: true
+      - redis
+      - database
+    healthcheck:
+      disable: false
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.immich-web.entrypoints=websecure"
-      - "traefik.http.services.immich-web.loadbalancer.server.port=3000"
-      - "traefik.http.routers.immich-web.service=immich-web"
-      - "traefik.http.routers.immich-web.rule=Host(`immich.${HOSTNAME:-pixeloven.com}`)"
-      - "traefik.http.routers.immich-web.tls=true"
-      - "traefik.http.routers.immich-web.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.immich.entrypoints=websecure"
+      - "traefik.http.services.immich.loadbalancer.server.port=2283"
+      - "traefik.http.routers.immich.service=immich"
+      - "traefik.http.routers.immich.rule=Host(`immich.${HOSTNAME:-pixeloven.com}`)"
+      - "traefik.http.routers.immich.tls=true"
+      - "traefik.http.routers.immich.tls.certresolver=letsencrypt"
 
-  # Immich Machine Learning - AI processing service
   immich-machine-learning:
-    image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION:-release}
     container_name: immich-machine-learning
+    # For hardware acceleration, add one of -[armnn, cuda, rocm, openvino, rknn] to the image tag.
+    # Example tag: ${IMMICH_VERSION:-release}-cuda
+    image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION:-release}
+    # extends: # uncomment this section for hardware acceleration - see https://docs.immich.app/features/ml-hardware-acceleration
+    #   file: hwaccel.ml.yml
+    #   service: cpu # set to one of [armnn, cuda, rocm, openvino, openvino-wsl, rknn] for accelerated inference - use the `-wsl` version for WSL2 where applicable
     restart: unless-stopped
     networks:
       - immich
@@ -79,97 +52,36 @@ services:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
       - TZ=${TZ:-Etc/UTC}
-      - NODE_ENV=production
-      - IMMICH_SERVER_URL=http://immich-server:3001
-      - IMMICH_MACHINE_LEARNING_URL=http://immich-machine-learning:3003
-      - IMMICH_MICROSERVICES_URL=http://immich-microservices:3002
-      - LOG_LEVEL=${LOG_LEVEL:-log}
-      - ENABLE_DIAGNOSTICS=${ENABLE_DIAGNOTICS:-true}
     volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
-      - immich-ml-models:/usr/src/app/models
-    depends_on:
-      immich-server:
-        condition: service_started
-        required: true
-
-  # Immich Microservices - Background processing
-  immich-microservices:
-    image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
-    container_name: immich-microservices
-    restart: unless-stopped
-    networks:
-      - immich
-    environment:
-      - PUID=${PUID:-1000}
-      - PGID=${PGID:-1000}
-      - TZ=${TZ:-Etc/UTC}
-      - NODE_ENV=production
-      - DB_HOSTNAME=immich-postgres
-      - DB_USERNAME=${DB_USERNAME:-postgres}
-      - DB_PASSWORD=${DB_PASSWORD:-postgres}
-      - DB_DATABASE_NAME=${DB_DATABASE_NAME:-immich}
-      - DB_PORT=5432
-      - REDIS_HOSTNAME=immich-redis
-      - REDIS_PORT=6379
-      - REDIS_DBINDEX=0
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
-      - UPLOAD_LOCATION=/usr/src/app/upload
-      - IMMICH_WEB_URL=http://immich-web:3000
-      - IMMICH_SERVER_URL=http://immich-server:3001
-      - IMMICH_MACHINE_LEARNING_URL=http://immich-machine-learning:3003
-      - IMMICH_MICROSERVICES_URL=http://immich-microservices:3002
-      - DISABLE_REVERSE_GEOCODING=${DISABLE_REVERSE_GEOCODING:-false}
-      - REVERSE_GEOCODING_PRECISION=${REVERSE_GEOCODING_PRECISION:-3}
-      - LOG_LEVEL=${LOG_LEVEL:-log}
-      - ENABLE_DIAGNOSTICS=${ENABLE_DIAGNOTICS:-true}
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
-      - ${IMMICH_UPLOAD_PATH:-./library}:/usr/src/app/upload
-    depends_on:
-      immich-postgres:
-        condition: service_healthy
-        required: true
-      immich-redis:
-        condition: service_started
-        required: true
-    command: ["npm", "run", "microservices:start"]
-
-  # PostgreSQL Database
-  immich-postgres:
-    image: postgres:15-alpine
-    container_name: immich-postgres
-    restart: unless-stopped
-    networks:
-      - immich
-    environment:
-      - POSTGRES_USER=${DB_USERNAME:-postgres}
-      - POSTGRES_PASSWORD=${DB_PASSWORD:-postgres}
-      - POSTGRES_DB=${DB_DATABASE_NAME:-immich}
-      - POSTGRES_INITDB_ARGS=--lc-collate=C --lc-ctype=C
-    volumes:
-      - immich-postgres-data:/var/lib/postgresql/data
+      - immich_model_cache:/cache
+    env_file:
+      - .env
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_DATABASE_NAME:-immich}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
+      disable: false
 
-  # Redis Cache
-  immich-redis:
-    image: redis:7-alpine
+  redis:
     container_name: immich-redis
+    image: docker.io/valkey/valkey:8-bookworm
+    restart: unless-stopped
+    networks:
+      - immich
+    healthcheck:
+      test: redis-cli ping || exit 1
+
+  database:
+    container_name: immich-postgres
+    image: ghcr.io/immich-app/postgres:17-vectorchord0.5.3-pgvector0.8.1
     restart: unless-stopped
     networks:
       - immich
     environment:
-      - TZ=${TZ:-Etc/UTC}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_USER=${DB_USERNAME:-postgres}
+      - POSTGRES_DB=${DB_DATABASE_NAME:-immich}
+      - POSTGRES_INITDB_ARGS=--data-checksums
     volumes:
-      - immich-redis-data:/data
-    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-}
+      - immich_postgres_data:/var/lib/postgresql/data
+    shm_size: 128mb
 
 networks:
   proxy:
@@ -179,9 +91,7 @@ networks:
     name: immich
 
 volumes:
-  immich-postgres-data:
-    name: immich-postgres-data
-  immich-redis-data:
-    name: immich-redis-data
-  immich-ml-models:
-    name: immich-ml-models
+  immich_model_cache:
+    name: immich_model_cache
+  immich_postgres_data:
+    name: immich_postgres_data
