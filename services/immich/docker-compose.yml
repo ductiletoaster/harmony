@@ -7,7 +7,6 @@ services:
     container_name: immich-server
     restart: unless-stopped
     networks:
-      - proxy
       - immich
     environment:
       - PUID=${PUID:-1000}
@@ -43,16 +42,6 @@ services:
       immich-redis:
         condition: service_started
         required: true
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.immich-server.entrypoints=websecure"
-      - "traefik.http.services.immich-server.loadbalancer.server.port=3001"
-      - "traefik.http.routers.immich-server.service=immich-server"
-      - "traefik.http.routers.immich-server.rule=Host(`immich.${HOSTNAME:-pixeloven.com}`)"
-      - "traefik.http.routers.immich-server.tls=true"
-      - "traefik.http.routers.immich-server.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.immich-server.middlewares=immich-api"
-      - "traefik.http.middlewares.immich-api.stripprefix.prefixes=/api"
 
   # Immich Web - Frontend application
   immich-web:
@@ -85,7 +74,6 @@ services:
     container_name: immich-machine-learning
     restart: unless-stopped
     networks:
-      - proxy
       - immich
     environment:
       - PUID=${PUID:-1000}
@@ -100,22 +88,11 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
-      - ${IMMICH_ML_MODELS_PATH:-./ml-models}:/usr/src/app/models
+      - immich-ml-models:/usr/src/app/models
     depends_on:
       immich-server:
         condition: service_started
         required: true
-    # GPU Configuration for Machine Learning:
-    # - Set GPU_DRIVER, GPU_COUNT, GPU_CAPABILITIES in .env
-    # - Supported drivers: nvidia, rocm, etc.
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: ${GPU_DRIVER:-nvidia}
-    #           count: ${GPU_COUNT:-all}
-    #           capabilities: 
-    #             - ${GPU_CAPABILITIES:-gpu}
 
   # Immich Microservices - Background processing
   immich-microservices:
@@ -123,7 +100,6 @@ services:
     container_name: immich-microservices
     restart: unless-stopped
     networks:
-      - proxy
       - immich
     environment:
       - PUID=${PUID:-1000}
@@ -174,7 +150,7 @@ services:
       - POSTGRES_DB=${DB_DATABASE_NAME:-immich}
       - POSTGRES_INITDB_ARGS=--lc-collate=C --lc-ctype=C
     volumes:
-      - ${IMMICH_DB_PATH:-./postgres}:/var/lib/postgresql/data
+      - immich-postgres-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_DATABASE_NAME:-immich}"]
       interval: 10s
@@ -192,7 +168,7 @@ services:
     environment:
       - TZ=${TZ:-Etc/UTC}
     volumes:
-      - ${IMMICH_REDIS_PATH:-./redis}:/data
+      - immich-redis-data:/data
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-}
 
 networks:
@@ -200,4 +176,12 @@ networks:
     name: proxy
     external: true
   immich:
-    name: immich 
+    name: immich
+
+volumes:
+  immich-postgres-data:
+    name: immich-postgres-data
+  immich-redis-data:
+    name: immich-redis-data
+  immich-ml-models:
+    name: immich-ml-models
