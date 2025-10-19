@@ -26,10 +26,6 @@ services:
       - "--providers.docker.endpoint=unix:///var/run/docker.sock"
       - "--providers.docker.exposedByDefault=false"
       - "--providers.docker.network=proxy"
-
-      # File provider for external services
-      - "--providers.file.directory=/etc/traefik/dynamic"
-      - "--providers.file.watch=true"
       
       # Let's Encrypt configuration for wildcard certificates using Cloudflare DNS challenge
       - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-admin@pixeloven.com}"
@@ -57,7 +53,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - traefik-certs:/certs
-      - ./dynamic:/etc/traefik/dynamic:ro
     environment:
       - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN:-your-cloudflare-api-token-here}
     labels:
