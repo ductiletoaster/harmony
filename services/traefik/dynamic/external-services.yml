@@ -1,0 +1,32 @@
+http:
+  routers:
+    # TrueNAS Web UI
+    truenas:
+      rule: "Host(`truenas.{{ env "HOSTNAME" }}`)"
+      entryPoints:
+        - websecure
+      service: truenas
+      tls:
+        certResolver: letsencrypt
+
+    # Komodo (hosted on TrueNAS Apps)
+    komodo:
+      rule: "Host(`komodo.{{ env "HOSTNAME" }}`)"
+      entryPoints:
+        - websecure
+      service: komodo
+      tls:
+        certResolver: letsencrypt
+
+  services:
+    # TrueNAS backend at 192.168.8.200:9080
+    truenas:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.8.200:9080"
+
+    # Komodo backend (update with actual IP:PORT when known)
+    komodo:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.8.200:PORT"  # Replace PORT with actual Komodo port
