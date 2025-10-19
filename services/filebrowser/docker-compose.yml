@@ -14,8 +14,8 @@ services:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
     volumes:
-      - ${FILEBROWSER_CONFIG_VOLUME:-filebrowser_config}:/config
-      - ${FILEBROWSER_DATABASE_VOLUME:-filebrowser_database}:/database
+      - filebrowser_config:/config
+      - filebrowser_database:/database
       - ${FILEBROWSER_STORAGE_PATH:-./storage}:/srv
     networks:
       - proxy
@@ -35,6 +35,6 @@ networks:
 
 volumes:
   filebrowser_config:
-    name: ${FILEBROWSER_CONFIG_NAME:-filebrowser_config}
+    name: filebrowser_config
   filebrowser_database:
-    name: ${FILEBROWSER_DATABASE_NAME:-filebrowser_database}
+    name: filebrowser_database
