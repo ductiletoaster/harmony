@@ -12,6 +12,11 @@ services:
       # Entrypoints
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
+
+      # Timeout configuration for large file uploads (e.g., Immich)
+      - "--entrypoints.websecure.transport.respondingtimeouts.readtimeout=600s"
+      - "--entrypoints.websecure.transport.respondingtimeouts.writetimeout=600s"
+      - "--entrypoints.websecure.transport.respondingtimeouts.idletimeout=600s"
       
       # API and Dashboard
       - "--api.insecure=true"
