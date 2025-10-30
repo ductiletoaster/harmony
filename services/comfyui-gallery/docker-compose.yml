@@ -1,0 +1,42 @@
+name: comfyui-gallery
+
+# Single docker-compose.yml for both local and TrueNAS Dockge
+# Use environment variables to configure deployment-specific settings
+
+services:
+  comfyui-gallery:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: comfyui-gallery:latest
+    container_name: comfyui-gallery
+    restart: unless-stopped
+    user: ${PUID:-1000}:${PGID:-1000}
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Etc/UTC}
+      - BASE_OUTPUT_PATH=${BASE_OUTPUT_PATH:-/comfyui/output}
+      - BASE_INPUT_PATH=${BASE_INPUT_PATH:-/comfyui/input}
+      - FFPROBE_MANUAL_PATH=${FFPROBE_MANUAL_PATH:-}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - ${GALLERY_DATA_PATH:-./data}:/app/data
+      - ${COMFY_OUTPUT_PATH:-./comfyui_output}:/comfyui/output:ro
+      - ${COMFY_INPUT_PATH:-./comfyui_input}:/comfyui/input:ro
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.comfyui-gallery.entrypoints=websecure"
+      - "traefik.http.services.comfyui-gallery.loadbalancer.server.port=8189"
+      - "traefik.http.routers.comfyui-gallery.service=comfyui-gallery"
+      - "traefik.http.routers.comfyui-gallery.rule=Host(`gallery.${HOSTNAME:-pixeloven.com}`)"
+      - "traefik.http.routers.comfyui-gallery.tls=true"
+      - "traefik.http.routers.comfyui-gallery.tls.certresolver=letsencrypt"
+
+networks:
+  proxy:
+    name: proxy
+    external: true

@@ -25,8 +25,7 @@ services:
       - ${COMFY_OUTPUT_PATH:-./data/output}:/app/output
       - ${COMFY_TEMP_PATH:-./data/temp}:/app/temp
       - ${COMFY_USER_PATH:-./data/user}:/app/user
-    # stop_signal: SIGKILL
-    # tty: true
+    restart: unless-stopped
     networks:
       - proxy
     labels:
